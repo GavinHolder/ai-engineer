@@ -23,9 +23,9 @@ import edge_tts
 
 # Default JARVIS-like voice settings
 DEFAULT_VOICE = "en-GB-RyanNeural"
-DEFAULT_RATE = "+5%"       # Slightly faster for that snappy JARVIS feel
+DEFAULT_RATE = "-2%"       # Slightly slower for natural pacing
 DEFAULT_VOLUME = "+0%"
-DEFAULT_PITCH = "-5Hz"     # Slightly deeper
+DEFAULT_PITCH = "-3Hz"     # Slightly deeper
 
 
 def strip_markdown(text: str) -> str:
@@ -60,6 +60,21 @@ def strip_markdown(text: str) -> str:
     # Remove file paths like /path/to/file:123
     text = re.sub(r"[\w/\\.-]+:\d+", "", text)
     return text.strip()
+
+
+def add_natural_pauses(text: str) -> str:
+    """Add SSML-friendly pacing cues so speech doesn't sound rushed or choppy.
+
+    Edge-tts handles commas/periods but not always with enough pause.
+    We nudge it by adding thin pauses at natural breath points.
+    """
+    # Add a small pause after commas that don't already have one
+    text = re.sub(r",(\s)", r", \1", text)
+    # Ensure sentences have breathing room (double space after period/question/exclamation)
+    text = re.sub(r"([.!?])(\s)(?=[A-Z])", r"\1  \2", text)
+    # Add a pause after dashes used as breaks (em-dash style)
+    text = re.sub(r"\s*[-–—]\s*", " — ", text)
+    return text
 
 
 def truncate_for_speech(text: str, max_chars: int = 2000) -> str:
@@ -149,6 +164,7 @@ def main():
     # Clean up text for speech
     if not args.raw:
         text = strip_markdown(text)
+    text = add_natural_pauses(text)
     text = truncate_for_speech(text, args.max_chars)
 
     if not text.strip():
