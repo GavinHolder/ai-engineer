@@ -92,6 +92,23 @@ This generates:
 - `.claude/memory/TASK_PROTOCOL.md` - Hierarchical task management (5 levels, checkpoints)
 - `.claude/memory/LEARNED_PATTERNS.md` - Continuous learning log
 
+### 4. Keep Django/Python skill up to date
+
+The Django/Python skill tracks package versions. To check for updates:
+
+```bash
+python update-django-skill.py           # Interactive: choose what to update
+python update-django-skill.py --check   # Check only, no changes
+python update-django-skill.py --auto    # Auto-update all to latest
+```
+
+The script:
+- Checks PyPI for latest versions of all tracked packages
+- Compares against `skills/django-python/versions.json`
+- Prompts you to choose which to update
+- Scrapes official Django/Python docs for release notes and changes
+- Updates `SKILL.md` version table and appends release notes
+
 ## Enhanced Skills
 
 | Skill | What It Does |
@@ -100,6 +117,7 @@ This generates:
 | `frontend-aesthetics` | Aesthetics system for distinctive UI: typography rules, color theory, background techniques, animation library reference (GSAP, Motion, Anime.js, AOS, Lottie, Three.js, tsParticles, Typed.js, Swiper, Lenis, Splitting.js, AutoAnimate), and anti-slop checklist. Custom skill, no default exists. |
 | `claude-bootstrap-base` | Universal coding patterns from alinaqi/claude-bootstrap: simplicity rules (20-line functions, 200-line files), TDD workflow, atomic todos, session management, credentials handling. |
 | `claude-bootstrap-react-web` | React web development patterns: test-first development, hooks, React Query, Zustand, CSS Modules, Playwright E2E, component architecture. |
+| `django-python` | Comprehensive Django & Python reference: project structure, models, views, DRF, Celery, HTMX SPA, testing, security, Docker deployment, service layer architecture. Auto-updated with latest package versions. |
 | `web-artifacts-builder` | From anthropics/skills: build complex React + Tailwind + shadcn/ui artifacts as single bundled HTML files. Includes init and bundle scripts. |
 
 ## Plugin Commands Quick Reference
@@ -151,8 +169,10 @@ ai-engineer/
 │   ├── frontend-aesthetics/SKILL.md # Aesthetics + animation library guide
 │   ├── claude-bootstrap-base/SKILL.md
 │   ├── claude-bootstrap-react-web/SKILL.md
+│   ├── django-python/               # Django+Python reference + versions.json
 │   └── web-artifacts-builder/       # Includes scripts/ and LICENSE.txt
-├── install-skills.py                # Copies skills to ~/.claude/skills/
+├── install-skills.py                # Skills install + hook fix + CLAUDE.md generation
+├── update-django-skill.py           # Version scout: checks PyPI, scrapes official docs
 ├── plugins.md                       # Full plugin list with install commands
 ├── startup.md                       # Original startup vision document
 ├── bootstrap-5.3-reference.md       # Standalone Bootstrap reference

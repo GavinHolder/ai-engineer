@@ -1,0 +1,100 @@
+{
+  "last_updated": "2026-02-08",
+  "packages": {
+    "Python": {
+      "version": "3.13",
+      "docs_url": "https://docs.python.org/3/whatsnew/3.13.html",
+      "role": "Runtime"
+    },
+    "Django": {
+      "version": "6.0.2",
+      "pypi": "Django",
+      "docs_url": "https://docs.djangoproject.com/en/6.0/releases/",
+      "role": "Web framework"
+    },
+    "djangorestframework": {
+      "version": "3.16.1",
+      "pypi": "djangorestframework",
+      "docs_url": "https://www.django-rest-framework.org/",
+      "role": "REST APIs"
+    },
+    "celery": {
+      "version": "5.6.2",
+      "pypi": "celery",
+      "docs_url": "https://docs.celeryq.dev/en/stable/whatsnew-5.6.html",
+      "role": "Task queue"
+    },
+    "redis": {
+      "version": "7.1.0",
+      "pypi": "redis",
+      "docs_url": "https://redis-py.readthedocs.io/en/stable/",
+      "role": "Cache / broker"
+    },
+    "psycopg": {
+      "version": "3.3.2",
+      "pypi": "psycopg",
+      "docs_url": "https://www.psycopg.org/psycopg3/docs/",
+      "role": "PostgreSQL adapter"
+    },
+    "gunicorn": {
+      "version": "25.0.3",
+      "pypi": "gunicorn",
+      "docs_url": "https://docs.gunicorn.org/en/stable/",
+      "role": "WSGI server"
+    },
+    "whitenoise": {
+      "version": "6.11.0",
+      "pypi": "whitenoise",
+      "docs_url": "https://whitenoise.readthedocs.io/en/stable/",
+      "role": "Static files"
+    },
+    "django-cors-headers": {
+      "version": "4.9.0",
+      "pypi": "django-cors-headers",
+      "docs_url": "https://github.com/adamchainz/django-cors-headers",
+      "role": "CORS middleware"
+    },
+    "django-filter": {
+      "version": "25.2",
+      "pypi": "django-filter",
+      "docs_url": "https://django-filter.readthedocs.io/en/stable/",
+      "role": "Queryset filtering"
+    },
+    "django-extensions": {
+      "version": "4.1",
+      "pypi": "django-extensions",
+      "docs_url": "https://django-extensions.readthedocs.io/en/latest/",
+      "role": "Dev utilities"
+    },
+    "django-htmx": {
+      "version": "1.27.0",
+      "pypi": "django-htmx",
+      "docs_url": "https://django-htmx.readthedocs.io/en/latest/",
+      "role": "HTMX integration"
+    },
+    "django-environ": {
+      "version": "0.12.0",
+      "pypi": "django-environ",
+      "docs_url": "https://django-environ.readthedocs.io/en/latest/",
+      "role": "Environment config"
+    },
+    "django-debug-toolbar": {
+      "version": "6.2.0",
+      "pypi": "django-debug-toolbar",
+      "docs_url": "https://django-debug-toolbar.readthedocs.io/en/stable/",
+      "role": "Debug panel"
+    },
+    "pytest-django": {
+      "version": "4.11.1",
+      "pypi": "pytest-django",
+      "docs_url": "https://pytest-django.readthedocs.io/en/latest/",
+      "role": "Testing"
+    },
+    "Pillow": {
+      "version": "12.1.0",
+      "pypi": "Pillow",
+      "docs_url": "https://pillow.readthedocs.io/en/stable/",
+      "role": "Image processing"
+    }
+  }
+}

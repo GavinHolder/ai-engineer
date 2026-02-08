@@ -322,12 +322,13 @@ When a pattern conflicts with a new requirement, flag it and ask.
 
 1. **Classify risk level** (Level 1-4)
 2. **Plan first** - Use `/writing-plans` or `/brainstorming` for Level 2+
-3. **For Level 3+**: Run `/adversarial-review` before coding
-4. **Write tests first** (TDD for Level 2+)
-5. **Implement** - Follow code style rules below
-6. **Verify** - Run full test suite, lint, typecheck
-7. **Review** - `/requesting-code-review` for Level 2+
-8. **Update memory** - Log to changelog, extract patterns
+3. **Visualize UI** - Use `/playground` to mock up and preview UI before coding (Level 2+ with UI)
+4. **For Level 3+**: Run `/adversarial-review` before coding
+5. **Write tests first** (TDD for Level 2+)
+6. **Implement** - Follow code style rules below
+7. **Verify** - Run full test suite, lint, typecheck
+8. **Review** - `/requesting-code-review` for Level 2+
+9. **Update memory** - Log to changelog, extract patterns
 
 ### Code Style Rules
 
