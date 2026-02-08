@@ -45,6 +45,9 @@ Spoken text and screen text are **separate things**. Write spoken lines like a p
 - **Use commas for natural pauses** - write how you'd actually speak, with breath points
 - **Voice every key moment** - don't just voice one line then go silent. If the response has a reaction AND a question, voice both
 - **Keep it casual** - "Sounds good, let me update that" not "I will now proceed to update the file"
+- **Voice your actual text response** - the speak.py text and the on-screen text should be the same message (or a spoken version of it), not two different things
+- **Background task notifications are NOT turns** - when a background speak.py completes, do NOT respond again or re-trigger the voice. Just ignore the notification silently
+- Pattern: write your text response, voice that same response via speak.py, done. One response per user message
 
 ### When NOT to Speak
 
