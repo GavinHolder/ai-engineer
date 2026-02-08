@@ -116,38 +116,16 @@ The script:
 
 ## JARVIS Voice System
 
-The toolkit includes a text-to-speech system that makes Claude responses audible, inspired by JARVIS from Iron Man.
+Text-to-speech that reads Claude responses aloud using a British neural voice (`en-GB-RyanNeural`), inspired by JARVIS from Iron Man. A Stop hook fires after every response, strips markdown, and speaks it via `edge-tts`.
 
-**How it works:**
-- A **Stop hook** fires after every Claude response
-- It runs `speak_response.py` which reads the conversation transcript
-- Extracts the last assistant message, strips markdown formatting, and speaks it aloud
-- Audio is generated via `edge-tts` (Microsoft neural voices) and played through PowerShell
-
-**Voice settings:**
-- Voice: `en-GB-RyanNeural` (British male)
-- Rate: `+5%` (slightly fast, snappy delivery)
-- Pitch: `-5Hz` (slightly deeper)
-- Max chars: 2000 (truncates long responses gracefully)
-
-**Enable / Disable:**
 ```bash
-python jarvis-toggle.py          # Toggle on/off
-python jarvis-toggle.py off      # Mute (great for demos/public places)
-python jarvis-toggle.py on       # Re-enable
-python jarvis-toggle.py status   # Check current state
+python skills/jarvis-voice/jarvis-toggle.py          # Toggle on/off
+python skills/jarvis-voice/jarvis-toggle.py off      # Mute (great for demos/public places)
+python skills/jarvis-voice/jarvis-toggle.py on       # Re-enable
+python skills/jarvis-voice/jarvis-toggle.py status   # Check current state
 ```
 
-When muted, a `~/.claude/jarvis-muted` file is created. The Stop hook checks for this file and silently skips TTS when it exists.
-
-**Manual usage:**
-```bash
-python skills/jarvis-voice/speak.py --text "Hello sir"
-echo "Hello sir" | python skills/jarvis-voice/speak.py
-python skills/jarvis-voice/speak.py --text "Hello" --rate "+15%" --pitch "-10Hz"
-```
-
-The Stop hook is configured in `.claude/settings.local.json`. The install script copies the voice skill to `~/.claude/skills/jarvis-voice/` for global availability.
+See **[skills/jarvis-voice/voice.md](skills/jarvis-voice/voice.md)** for full documentation: voice settings, CLI arguments, hook configuration, available voices, and manual usage.
 
 ## Enhanced Skills
 
@@ -218,9 +196,10 @@ ai-engineer/
 │   ├── django-python/               # Django+Python reference + versions.json
 │   ├── jarvis-voice/                # JARVIS TTS system
 │   │   ├── speak.py                 # Main TTS engine (edge-tts + PowerShell)
-│   │   └── speak_response.py       # Stop hook handler
+│   │   ├── speak_response.py       # Stop hook handler
+│   │   ├── jarvis-toggle.py        # Enable/disable JARVIS voice
+│   │   └── voice.md                # Full voice system documentation
 │   └── web-artifacts-builder/       # Includes scripts/ and LICENSE.txt
-├── jarvis-toggle.py                 # Enable/disable JARVIS voice
 ├── install-skills.py                # Skills install + hook fix + CLAUDE.md generation
 ├── update-django-skill.py           # Version scout: checks PyPI, scrapes official docs
 ├── plugins.md                       # Full plugin list with install commands + usage guide
