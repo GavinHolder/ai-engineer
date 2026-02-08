@@ -2,6 +2,75 @@
 
 ---
 
+## How to Use Skills & Plugins
+
+### Method 1: Slash Commands (explicit invocation)
+Type `/` followed by the skill name in Claude Code to explicitly invoke a skill:
+
+```
+/frontend-design        → Build a creative, distinctive UI component or page
+/frontend-aesthetics    → Apply the full aesthetics system (typography, color, animation)
+/bootstrap-5            → Use Bootstrap 5.3.8 framework with full component reference
+/feature-dev            → Guided feature development with architecture focus
+/brainstorming          → Explore requirements before building (use BEFORE any creative work)
+/writing-plans          → Plan a multi-step implementation before coding
+/test-driven-development → Write tests first, then implement
+/systematic-debugging   → Debug methodically instead of guessing
+/verification-before-completion → Verify everything works before claiming done
+/requesting-code-review → Review your work before merging
+/playground             → Create an interactive HTML explorer/configurator
+/web-artifacts-builder  → Build complex React+Tailwind+shadcn artifacts
+/Django Framework       → Build Django web applications
+/hookify                → Create hooks to enforce behaviors
+/claude-automation-recommender → Get Claude Code setup recommendations
+/revise-claude-md       → Update CLAUDE.md with session learnings
+/claude-md-improver     → Audit and improve CLAUDE.md files
+/web-design-guidelines  → Audit UI for accessibility and best practices
+/keybindings-help       → Customize keyboard shortcuts
+```
+
+### Method 2: Natural Language (automatic activation)
+Many skills activate automatically when you describe what you need:
+
+| What you say | Skills that activate |
+|---|---|
+| "Build me a landing page" | frontend-design, frontend-aesthetics, bootstrap-5 |
+| "Create a dashboard with charts" | frontend-design, frontend-aesthetics |
+| "Add a login form with Bootstrap" | bootstrap-5, frontend-aesthetics |
+| "Debug this failing test" | systematic-debugging |
+| "Plan the implementation for..." | writing-plans |
+| "Review my code before I merge" | requesting-code-review |
+| "Set up this Django project" | django-framework |
+| "Optimize my React components" | vercel-react-best-practices |
+| "Check my site's accessibility" | web-design-guidelines |
+| "Make an interactive playground for..." | playground |
+| "What Claude Code features should I use?" | claude-automation-recommender |
+
+### Method 3: Combining Skills
+For best results, invoke multiple skills together:
+
+```
+"Using Bootstrap 5 with creative animations, build me a SaaS pricing page"
+→ Activates: bootstrap-5 + frontend-aesthetics + frontend-design
+
+"Plan and then build a Django REST API with React frontend"
+→ Use: /writing-plans first, then /Django Framework + /vercel-react-best-practices
+
+"Build a complex multi-page artifact with shadcn components"
+→ Use: /web-artifacts-builder + /frontend-aesthetics
+```
+
+### Workflow Best Practices
+
+1. **Always start with /brainstorming** for any new feature or creative work
+2. **Use /writing-plans** before multi-step implementations
+3. **Use /test-driven-development** for any feature with testable logic
+4. **Use /verification-before-completion** before claiming work is done
+5. **Use /requesting-code-review** before merging to main
+6. **Use /revise-claude-md** at the end of sessions to capture learnings
+
+---
+
 ## Plugins from `anthropics/claude-plugins-official`
 
 Install command: `/plugin` then select from the `anthropics/claude-plugins-official` marketplace.
