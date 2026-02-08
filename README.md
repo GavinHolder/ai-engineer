@@ -2,13 +2,16 @@
 
 by **GavinHolder**
 
-A complete Claude Code development environment with enhanced skills, plugin configurations, and workflow documentation for building production-grade web applications.
+A complete Claude Code development environment with enhanced skills, plugin configurations, JARVIS voice system, and workflow documentation for building production-grade web applications.
 
 ## What's Included
 
 - **Enhanced Skills** (`skills/`) - Custom and improved Claude Code skill files that replace defaults
-- **Plugin Documentation** (`plugins.md`) - Full list of installed plugins with install commands
+- **JARVIS Voice System** (`skills/jarvis-voice/`) - Text-to-speech that reads Claude responses aloud using a British neural voice (JARVIS-style)
+- **Plugin Documentation** (`plugins.md`) - Full list of installed plugins with install commands and usage guide
 - **Install Script** (`install-skills.py`) - Installs skills, fixes Windows hooks, generates project CLAUDE.md
+- **Version Scout** (`update-django-skill.py`) - Auto-updates Django/Python skill with latest package versions from PyPI
+- **Project Config** (`CLAUDE.md`) - Project-level instructions that Claude Code loads automatically
 - **Reference Docs** - Bootstrap 5.3.8 reference, animation library guide
 
 ## Prerequisites
@@ -17,6 +20,8 @@ A complete Claude Code development environment with enhanced skills, plugin conf
 - Python 3.10+
 - Git
 - [GitHub CLI](https://cli.github.com/) (`gh`) installed and authenticated
+- `edge-tts` (`pip install edge-tts`) - Required for JARVIS voice system
+- PowerShell (built into Windows) - Used for audio playback
 
 ## Quick Start
 
@@ -109,6 +114,31 @@ The script:
 - Scrapes official Django/Python docs for release notes and changes
 - Updates `SKILL.md` version table and appends release notes
 
+## JARVIS Voice System
+
+The toolkit includes a text-to-speech system that makes Claude responses audible, inspired by JARVIS from Iron Man.
+
+**How it works:**
+- A **Stop hook** fires after every Claude response
+- It runs `speak_response.py` which reads the conversation transcript
+- Extracts the last assistant message, strips markdown formatting, and speaks it aloud
+- Audio is generated via `edge-tts` (Microsoft neural voices) and played through PowerShell
+
+**Voice settings:**
+- Voice: `en-GB-RyanNeural` (British male)
+- Rate: `+5%` (slightly fast, snappy delivery)
+- Pitch: `-5Hz` (slightly deeper)
+- Max chars: 2000 (truncates long responses gracefully)
+
+**Manual usage:**
+```bash
+python skills/jarvis-voice/speak.py --text "Hello sir"
+echo "Hello sir" | python skills/jarvis-voice/speak.py
+python skills/jarvis-voice/speak.py --text "Hello" --rate "+15%" --pitch "-10Hz"
+```
+
+The Stop hook is configured in `.claude/settings.local.json`. The install script copies the voice skill to `~/.claude/skills/jarvis-voice/` for global availability.
+
 ## Enhanced Skills
 
 | Skill | What It Does |
@@ -118,6 +148,7 @@ The script:
 | `claude-bootstrap-base` | Universal coding patterns from alinaqi/claude-bootstrap: simplicity rules (20-line functions, 200-line files), TDD workflow, atomic todos, session management, credentials handling. |
 | `claude-bootstrap-react-web` | React web development patterns: test-first development, hooks, React Query, Zustand, CSS Modules, Playwright E2E, component architecture. |
 | `django-python` | Comprehensive Django & Python reference: project structure, models, views, DRF, Celery, HTMX SPA, testing, security, Docker deployment, service layer architecture. Auto-updated with latest package versions. |
+| `jarvis-voice` | JARVIS-style TTS engine using Microsoft Edge neural voices. Strips markdown, truncates long text, and plays audio via PowerShell. Integrates as a Stop hook for automatic speech. |
 | `web-artifacts-builder` | From anthropics/skills: build complex React + Tailwind + shadcn/ui artifacts as single bundled HTML files. Includes init and bundle scripts. |
 
 ## Plugin Commands Quick Reference
@@ -138,7 +169,10 @@ The script:
 /Django Framework          Django web applications
 /hookify                   Create enforcement hooks
 /revise-claude-md          Update CLAUDE.md with learnings
+/claude-md-improver        Audit and improve CLAUDE.md files
+/claude-automation-recommender  Get Claude Code setup recommendations
 /web-design-guidelines     Accessibility and UX audit
+/keybindings-help          Customize keyboard shortcuts
 ```
 
 ## Development Workflow
@@ -164,16 +198,22 @@ All deployments follow a Docker + Portainer + Traefik stack approach:
 
 ```
 ai-engineer/
+├── .claude/
+│   └── settings.local.json          # Hook config (JARVIS Stop hook)
 ├── skills/                          # Enhanced/custom Claude Code skills
 │   ├── bootstrap-5/SKILL.md         # Bootstrap 5.3.8 reference (replaces default)
 │   ├── frontend-aesthetics/SKILL.md # Aesthetics + animation library guide
 │   ├── claude-bootstrap-base/SKILL.md
 │   ├── claude-bootstrap-react-web/SKILL.md
 │   ├── django-python/               # Django+Python reference + versions.json
+│   ├── jarvis-voice/                # JARVIS TTS system
+│   │   ├── speak.py                 # Main TTS engine (edge-tts + PowerShell)
+│   │   └── speak_response.py       # Stop hook handler
 │   └── web-artifacts-builder/       # Includes scripts/ and LICENSE.txt
 ├── install-skills.py                # Skills install + hook fix + CLAUDE.md generation
 ├── update-django-skill.py           # Version scout: checks PyPI, scrapes official docs
-├── plugins.md                       # Full plugin list with install commands
+├── plugins.md                       # Full plugin list with install commands + usage guide
+├── CLAUDE.md                        # Project config (auto-loaded by Claude Code)
 ├── startup.md                       # Original startup vision document
 ├── bootstrap-5.3-reference.md       # Standalone Bootstrap reference
 ├── animation-libraries-reference.md # Standalone animation library guide
