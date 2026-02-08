@@ -55,11 +55,22 @@ def get_last_assistant_text(transcript_path: str) -> str:
     return last_assistant_text
 
 
+def is_voice_enabled() -> bool:
+    """Check if JARVIS voice is enabled. Muted if ~/.claude/jarvis-muted exists."""
+    mute_file = os.path.join(os.path.expanduser("~"), ".claude", "jarvis-muted")
+    return not os.path.exists(mute_file)
+
+
 def main():
     # Read hook input from stdin
     try:
         hook_input = json.loads(sys.stdin.read())
     except (json.JSONDecodeError, EOFError):
+        sys.exit(0)
+
+    # Check if voice is muted
+    if not is_voice_enabled():
+        print(json.dumps({"continue": True}))
         sys.exit(0)
 
     transcript_path = hook_input.get("transcript_path", "")

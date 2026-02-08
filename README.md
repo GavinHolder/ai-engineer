@@ -130,6 +130,16 @@ The toolkit includes a text-to-speech system that makes Claude responses audible
 - Pitch: `-5Hz` (slightly deeper)
 - Max chars: 2000 (truncates long responses gracefully)
 
+**Enable / Disable:**
+```bash
+python jarvis-toggle.py          # Toggle on/off
+python jarvis-toggle.py off      # Mute (great for demos/public places)
+python jarvis-toggle.py on       # Re-enable
+python jarvis-toggle.py status   # Check current state
+```
+
+When muted, a `~/.claude/jarvis-muted` file is created. The Stop hook checks for this file and silently skips TTS when it exists.
+
 **Manual usage:**
 ```bash
 python skills/jarvis-voice/speak.py --text "Hello sir"
@@ -210,6 +220,7 @@ ai-engineer/
 │   │   ├── speak.py                 # Main TTS engine (edge-tts + PowerShell)
 │   │   └── speak_response.py       # Stop hook handler
 │   └── web-artifacts-builder/       # Includes scripts/ and LICENSE.txt
+├── jarvis-toggle.py                 # Enable/disable JARVIS voice
 ├── install-skills.py                # Skills install + hook fix + CLAUDE.md generation
 ├── update-django-skill.py           # Version scout: checks PyPI, scrapes official docs
 ├── plugins.md                       # Full plugin list with install commands + usage guide
@@ -220,3 +231,6 @@ ai-engineer/
 ├── .gitignore
 └── README.md
 ```
+
+# Agents
+Use --agent <agent_name> to directly start a conversation with a subagent 
