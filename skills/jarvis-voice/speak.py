@@ -11,10 +11,13 @@ Usage:
 import argparse
 import asyncio
 import os
+from pathlib import Path
 import re
 import subprocess
 import sys
 import tempfile
+
+MUTE_FILE = Path.home() / ".claude" / "jarvis-muted"
 
 import edge_tts
 
@@ -117,6 +120,10 @@ $player.Close()
 
 
 def main():
+    # Respect mute toggle
+    if MUTE_FILE.exists():
+        sys.exit(0)
+
     parser = argparse.ArgumentParser(description="JARVIS TTS - Speak text aloud")
     parser.add_argument("--text", "-t", type=str, help="Text to speak (reads from stdin if not provided)")
     parser.add_argument("--voice", "-v", type=str, default=DEFAULT_VOICE, help=f"Voice name (default: {DEFAULT_VOICE})")

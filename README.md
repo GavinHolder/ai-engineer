@@ -16,12 +16,72 @@ A complete Claude Code development environment with enhanced skills, plugin conf
 
 ## Prerequisites
 
-- [Claude Code](https://claude.ai/code) (CLI) installed and authenticated
-- Python 3.10+
-- Git
-- [GitHub CLI](https://cli.github.com/) (`gh`) installed and authenticated
-- `edge-tts` (`pip install edge-tts`) - Required for JARVIS voice system
-- PowerShell (built into Windows) - Used for audio playback
+### 1. Claude Code CLI
+
+Install and authenticate the Claude Code CLI:
+
+```bash
+npm install -g @anthropic-ai/claude-code
+claude login
+```
+
+Verify: `claude --version` should return a version number.
+
+### 2. Python 3.10+
+
+Download from [python.org](https://www.python.org/downloads/) or install via a package manager:
+
+```bash
+# Windows (winget)
+winget install Python.Python.3.12
+
+# macOS (Homebrew)
+brew install python@3.12
+```
+
+Verify: `python --version` should return 3.10 or higher.
+
+### 3. Git
+
+Download from [git-scm.com](https://git-scm.com/downloads) or install via a package manager:
+
+```bash
+# Windows (winget)
+winget install Git.Git
+
+# macOS (Homebrew)
+brew install git
+```
+
+Verify: `git --version`
+
+### 4. GitHub CLI (`gh`)
+
+Download from [cli.github.com](https://cli.github.com/) or install via a package manager:
+
+```bash
+# Windows (winget)
+winget install GitHub.cli
+
+# macOS (Homebrew)
+brew install gh
+```
+
+Then authenticate: `gh auth login`
+
+Verify: `gh auth status` should show you're logged in.
+
+### 5. edge-tts (for JARVIS voice)
+
+```bash
+pip install edge-tts
+```
+
+Verify: `python -m edge_tts --list-voices` should list available voices.
+
+### 6. PowerShell (Windows only)
+
+Built into Windows - no installation needed. Used for audio playback via the PresentationCore assembly.
 
 ## Quick Start
 
@@ -116,7 +176,7 @@ The script:
 
 ## JARVIS Voice System
 
-Text-to-speech that reads Claude responses aloud using a British neural voice (`en-GB-RyanNeural`), inspired by JARVIS from Iron Man. A Stop hook fires after every response, strips markdown, and speaks it via `edge-tts`.
+Text-to-speech that gives Claude a voice using a British neural voice (`en-GB-RyanNeural`), inspired by JARVIS from Iron Man. Operates in **conversational mode** - Claude speaks naturally at key moments (acknowledging tasks, reporting findings, asking questions) rather than reading back entire responses.
 
 ```bash
 python skills/jarvis-voice/jarvis-toggle.py          # Toggle on/off
@@ -136,7 +196,7 @@ See **[skills/jarvis-voice/voice.md](skills/jarvis-voice/voice.md)** for full do
 | `claude-bootstrap-base` | Universal coding patterns from alinaqi/claude-bootstrap: simplicity rules (20-line functions, 200-line files), TDD workflow, atomic todos, session management, credentials handling. |
 | `claude-bootstrap-react-web` | React web development patterns: test-first development, hooks, React Query, Zustand, CSS Modules, Playwright E2E, component architecture. |
 | `django-python` | Comprehensive Django & Python reference: project structure, models, views, DRF, Celery, HTMX SPA, testing, security, Docker deployment, service layer architecture. Auto-updated with latest package versions. |
-| `jarvis-voice` | JARVIS-style TTS engine using Microsoft Edge neural voices. Strips markdown, truncates long text, and plays audio via PowerShell. Integrates as a Stop hook for automatic speech. |
+| `jarvis-voice` | JARVIS-style TTS engine using Microsoft Edge neural voices. Claude speaks conversationally at natural moments - acknowledging tasks, reporting findings, asking questions aloud. |
 | `web-artifacts-builder` | From anthropics/skills: build complex React + Tailwind + shadcn/ui artifacts as single bundled HTML files. Includes init and bundle scripts. |
 
 ## Plugin Commands Quick Reference
@@ -187,7 +247,7 @@ All deployments follow a Docker + Portainer + Traefik stack approach:
 ```
 ai-engineer/
 ├── .claude/
-│   └── settings.local.json          # Hook config (JARVIS Stop hook)
+│   └── settings.local.json          # Permissions config
 ├── skills/                          # Enhanced/custom Claude Code skills
 │   ├── bootstrap-5/SKILL.md         # Bootstrap 5.3.8 reference (replaces default)
 │   ├── frontend-aesthetics/SKILL.md # Aesthetics + animation library guide

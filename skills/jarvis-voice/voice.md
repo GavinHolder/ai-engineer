@@ -1,13 +1,34 @@
 # JARVIS Voice System
 
-A text-to-speech system that makes Claude Code responses audible using a British neural voice, inspired by JARVIS from Iron Man.
+A text-to-speech system that gives Claude a voice using a British neural voice, inspired by JARVIS from Iron Man.
 
-## How It Works
+## How It Works - Conversational Mode
 
-1. A **Stop hook** in `.claude/settings.local.json` fires after every Claude response
-2. The hook runs `skills/jarvis-voice/speak_response.py` which reads the conversation transcript
-3. It extracts the last assistant message, strips markdown formatting, and speaks it aloud
-4. Audio is generated via `edge-tts` (Microsoft neural voices) and played through PowerShell MediaPlayer
+The voice system operates in **conversational mode**: Claude proactively speaks at natural moments during the interaction, like a human assistant would. This replaces the old "narration mode" which read back entire responses at the end.
+
+### What Claude Says Aloud
+- Task acknowledgements: "Let me look into that", "Right away sir"
+- Key findings: "Found the issue", "Interesting, here's what I see"
+- Questions: spoken aloud so the user hears them
+- Completions: "All done sir", "Done and dusted"
+- Natural reactions: "That's a good idea", "Ah, I see the problem"
+
+### What Claude Does NOT Say Aloud
+- Tool/command outputs
+- Code blocks or file contents
+- Every file read, search, or edit
+- Long technical explanations
+
+### How It Works Technically
+Claude calls `speak.py` via Bash with `run_in_background: true` at conversational moments. Messages are kept short (under 200 chars) and use natural JARVIS-like phrasing. The instructions live in `CLAUDE.md` so Claude knows when and how to speak.
+
+### Old Mode: Narration (Deprecated)
+Previously, a **Stop hook** fired after every Claude response, extracted the full response text via `speak_response.py`, stripped markdown, and read it all aloud. This was removed because:
+- It read everything including technical details the user didn't need to hear
+- It only spoke once at the end, making it feel robotic
+- It couldn't react naturally during the conversation
+
+The `speak_response.py` file is retained for reference but is no longer hooked up.
 
 ## Dependencies
 
@@ -18,16 +39,16 @@ A text-to-speech system that makes Claude Code responses audible using a British
 
 ## Enable / Disable
 
-Toggle the voice on or off using the toggle script at the repo root:
+Toggle the voice on or off using the toggle script:
 
 ```bash
-python jarvis-toggle.py          # Toggle on/off
-python jarvis-toggle.py off      # Mute (great for demos/public places)
-python jarvis-toggle.py on       # Re-enable
-python jarvis-toggle.py status   # Check current state
+python skills/jarvis-voice/jarvis-toggle.py          # Toggle on/off
+python skills/jarvis-voice/jarvis-toggle.py off      # Mute (great for demos/public places)
+python skills/jarvis-voice/jarvis-toggle.py on       # Re-enable
+python skills/jarvis-voice/jarvis-toggle.py status   # Check current state
 ```
 
-When muted, a `~/.claude/jarvis-muted` file is created. The Stop hook checks for this file and silently skips TTS when it exists. Delete the file manually to re-enable, or just run `python jarvis-toggle.py on`.
+When muted, a `~/.claude/jarvis-muted` file is created. The `speak.py` script checks for this file and silently skips TTS when it exists. Delete the file manually to re-enable, or just run `python jarvis-toggle.py on`.
 
 ## Voice Settings
 
@@ -43,7 +64,7 @@ Configured as defaults in `skills/jarvis-voice/speak.py`:
 
 ## Manual Usage
 
-Speak text directly without the Stop hook:
+Speak text directly without Claude's conversational triggers:
 
 ```bash
 # Speak text directly
@@ -79,38 +100,9 @@ python skills/jarvis-voice/speak.py --text "Long text..." --max-chars 500
 | File | Purpose |
 |---|---|
 | `speak.py` | Main TTS engine - generates audio with edge-tts and plays via PowerShell |
-| `speak_response.py` | Stop hook handler - reads transcript, extracts last response, calls speak.py |
+| `speak_response.py` | Legacy Stop hook handler (retained for reference, no longer active) |
 | `jarvis-toggle.py` | Toggle script to enable/disable voice |
 | `voice.md` | This documentation file |
-| `.claude/settings.local.json` | Hook configuration that triggers the voice system (project root) |
-
-## Hook Configuration
-
-The Stop hook is defined in `.claude/settings.local.json`:
-
-```json
-{
-  "hooks": {
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python \"F:\\Projects\\2026\\ai_engineer\\skills\\jarvis-voice\\speak_response.py\"",
-            "timeout": 120
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-To add JARVIS voice to another project, copy this hook config into that project's `.claude/settings.local.json`.
-
-## Installation
-
-The `install-skills.py` script copies `skills/jarvis-voice/` to `~/.claude/skills/jarvis-voice/` for global availability. The Stop hook path in `.claude/settings.local.json` must be updated per-project to point to the correct script location.
 
 ## Text Processing
 
