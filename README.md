@@ -8,7 +8,7 @@ A complete Claude Code development environment with enhanced skills, plugin conf
 
 - **Enhanced Skills** (`skills/`) - Custom and improved Claude Code skill files that replace defaults
 - **Plugin Documentation** (`plugins.md`) - Full list of installed plugins with install commands
-- **Install Script** (`install-skills.py`) - Copies enhanced skills into your Claude Code environment
+- **Install Script** (`install-skills.py`) - Installs skills, fixes Windows hooks, generates project CLAUDE.md
 - **Reference Docs** - Bootstrap 5.3.8 reference, animation library guide
 
 ## Prerequisites
@@ -61,15 +61,36 @@ git clone https://github.com/alinaqi/claude-bootstrap ~/.claude-bootstrap
 cd ~/.claude-bootstrap && ./install.sh
 ```
 
-### 3. Apply enhanced skills
+### 3. Run the setup script
 
-After plugins are installed (which creates default skill files), run the install script to overwrite with the enhanced versions from this repo:
+After plugins are installed, run the setup script:
 
 ```bash
 python install-skills.py
 ```
 
-This copies only the files in `skills/` to `~/.claude/skills/`, overwriting defaults where they exist and leaving all other installed skills untouched.
+The script does 3 things:
+1. **Installs enhanced skills** - Copies `skills/` to `~/.claude/skills/`, overwriting defaults
+2. **Fixes Windows hooks** - Patches `python3` -> `python` in all plugin hook files (Windows only)
+3. **Generates CLAUDE.md** - Creates project session guide + memory files (when run from a project directory)
+
+To initialize a new project with CLAUDE.md and the full session management framework:
+
+```bash
+# Option A: Run from the project directory
+cd <your-project>
+python path/to/ai-engineer/install-skills.py
+
+# Option B: Use --init flag
+python install-skills.py --init <project-path>
+```
+
+This generates:
+- `CLAUDE.md` - Session guide with adversarial verification, TDD workflow, risk classification
+- `.claude/memory/SESSION_CONTEXT.md` - Active state tracking
+- `.claude/memory/SESSION_CHANGELOG.md` - Timestamped session history
+- `.claude/memory/TASK_PROTOCOL.md` - Hierarchical task management (5 levels, checkpoints)
+- `.claude/memory/LEARNED_PATTERNS.md` - Continuous learning log
 
 ## Enhanced Skills
 
