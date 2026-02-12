@@ -30,7 +30,8 @@ from typing import Optional
 # ---------------------------------------------------------------------------
 
 SCRIPT_DIR = Path(__file__).parent
-SKILL_DIR = SCRIPT_DIR / "skills" / "django-python"
+REPO_ROOT = SCRIPT_DIR.parent
+SKILL_DIR = REPO_ROOT / "skills" / "django-python"
 VERSIONS_FILE = SKILL_DIR / "versions.json"
 SKILL_FILE = SKILL_DIR / "SKILL.md"
 

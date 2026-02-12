@@ -8,11 +8,11 @@ A complete Claude Code development environment with enhanced skills, plugin conf
 
 - **Enhanced Skills** (`skills/`) - Custom and improved Claude Code skill files that replace defaults
 - **JARVIS Voice System** (`skills/jarvis-voice/`) - Text-to-speech that reads Claude responses aloud using a British neural voice (JARVIS-style)
-- **Plugin Documentation** (`plugins.md`) - Full list of installed plugins with install commands and usage guide
-- **Install Script** (`install-skills.py`) - Installs skills, fixes Windows hooks, generates project CLAUDE.md
-- **Version Scout** (`update-django-skill.py`) - Auto-updates Django/Python skill with latest package versions from PyPI
+- **Plugin Documentation** (`docs/plugins.md`) - Full list of installed plugins with install commands and usage guide
+- **Install Script** (`scripts/install-skills.py`) - Installs skills, plugins, fixes Windows hooks, generates project CLAUDE.md
+- **Version Scout** (`scripts/update-django-skill.py`) - Auto-updates Django/Python skill with latest package versions from PyPI
 - **Project Config** (`CLAUDE.md`) - Project-level instructions that Claude Code loads automatically
-- **Reference Docs** - Bootstrap 5.3.8 reference, animation library guide
+- **Reference Docs** (`docs/`) - Bootstrap 5.3.8 reference, animation library guide, HOW-TO-USE guide
 
 ## Prerequisites
 
@@ -92,62 +92,31 @@ git clone https://github.com/GavinHolder/ai-engineer.git
 cd ai-engineer
 ```
 
-### 2. Install plugins
+### 2. Run the setup script
 
-Install each plugin into Claude Code. Run these inside any Claude Code session:
-
-**From `anthropics/claude-plugins-official`:**
-```
-/plugin install frontend-design from anthropics/claude-plugins-official
-/plugin install feature-dev from anthropics/claude-plugins-official
-/plugin install typescript-lsp from anthropics/claude-plugins-official
-/plugin install security-guidance from anthropics/claude-plugins-official
-/plugin install pyright-lsp from anthropics/claude-plugins-official
-/plugin install claude-md-management from anthropics/claude-plugins-official
-/plugin install hookify from anthropics/claude-plugins-official
-/plugin install claude-code-setup from anthropics/claude-plugins-official
-/plugin install playground from anthropics/claude-plugins-official
-```
-
-**From `affaan-m/everything-claude-code`:**
-```
-/plugin install superpowers from affaan-m/everything-claude-code
-```
-
-**From `anthropics/skills` (manual):**
-```
-/plugin marketplace add anthropics/skills
-/plugin install web-artifacts-builder from anthropic-agent-skills
-```
-
-**From `alinaqi/claude-bootstrap` (manual):**
-```bash
-git clone https://github.com/alinaqi/claude-bootstrap ~/.claude-bootstrap
-cd ~/.claude-bootstrap && ./install.sh
-```
-
-### 3. Run the setup script
-
-After plugins are installed, run the setup script:
+The setup script handles everything - skills, plugins, and configuration:
 
 ```bash
-python install-skills.py
+python scripts/install-skills.py
 ```
 
-The script does 3 things:
+The script does:
+0. **Checks Claude CLI** - Verifies `claude` is installed, auto-installs via npm if missing
 1. **Installs enhanced skills** - Copies `skills/` to `~/.claude/skills/`, overwriting defaults
-2. **Fixes Windows hooks** - Patches `python3` -> `python` in all plugin hook files (Windows only)
-3. **Generates CLAUDE.md** - Creates project session guide + memory files (when run from a project directory)
+2. **Installs all plugins** - Automatically installs all plugins via `claude plugin install` (Playwright, frontend-design, feature-dev, superpowers, etc.)
+3. **Mutes JARVIS voice** - Voice is off by default, enable with `python skills/jarvis-voice/jarvis-toggle.py`
+4. **Fixes Windows hooks** - Patches `python3` -> `python` in all plugin hook files (Windows only)
+5. **Generates CLAUDE.md** - Creates project session guide + memory files (when run from a project directory)
 
 To initialize a new project with CLAUDE.md and the full session management framework:
 
 ```bash
 # Option A: Run from the project directory
 cd <your-project>
-python path/to/ai-engineer/install-skills.py
+python path/to/ai-engineer/scripts/install-skills.py
 
 # Option B: Use --init flag
-python install-skills.py --init <project-path>
+python scripts/install-skills.py --init <project-path>
 ```
 
 This generates:
@@ -157,14 +126,14 @@ This generates:
 - `.claude/memory/TASK_PROTOCOL.md` - Hierarchical task management (5 levels, checkpoints)
 - `.claude/memory/LEARNED_PATTERNS.md` - Continuous learning log
 
-### 4. Keep Django/Python skill up to date
+### 3. Keep Django/Python skill up to date
 
 The Django/Python skill tracks package versions. To check for updates:
 
 ```bash
-python update-django-skill.py           # Interactive: choose what to update
-python update-django-skill.py --check   # Check only, no changes
-python update-django-skill.py --auto    # Auto-update all to latest
+python scripts/update-django-skill.py           # Interactive: choose what to update
+python scripts/update-django-skill.py --check   # Check only, no changes
+python scripts/update-django-skill.py --auto    # Auto-update all to latest
 ```
 
 The script:
@@ -247,26 +216,33 @@ All deployments follow a Docker + Portainer + Traefik stack approach:
 ```
 ai-engineer/
 ├── .claude/
-│   └── settings.local.json          # Permissions config
-├── skills/                          # Enhanced/custom Claude Code skills
-│   ├── bootstrap-5/SKILL.md         # Bootstrap 5.3.8 reference (replaces default)
-│   ├── frontend-aesthetics/SKILL.md # Aesthetics + animation library guide
-│   ├── claude-bootstrap-base/SKILL.md
+│   └── settings.local.json              # Permissions config
+├── scripts/
+│   ├── install-skills.py                # Main setup: skills, plugins, hooks, CLAUDE.md
+│   └── update-django-skill.py           # Version scout: checks PyPI, updates skill
+├── skills/                              # Enhanced/custom Claude Code skills
+│   ├── bootstrap-5/SKILL.md             # Bootstrap 5.3.8 reference
+│   ├── css3/SKILL.md                    # Modern CSS reference
+│   ├── html5/SKILL.md                   # HTML5 reference
+│   ├── javascript-es2025/SKILL.md       # Modern JS reference
+│   ├── react-19/SKILL.md                # React 19 reference
+│   ├── modern-ui-ux/SKILL.md            # UI/UX design skill
+│   ├── frontend-aesthetics/SKILL.md     # Aesthetics + animation library guide
+│   ├── visual-debugging/SKILL.md        # Playwright visual debugging
+│   ├── claude-bootstrap-base/SKILL.md   # TDD workflow, code quality
 │   ├── claude-bootstrap-react-web/SKILL.md
-│   ├── django-python/               # Django+Python reference + versions.json
-│   ├── jarvis-voice/                # JARVIS TTS system
-│   │   ├── speak.py                 # Main TTS engine (edge-tts + PowerShell)
-│   │   ├── speak_response.py       # Stop hook handler
-│   │   ├── jarvis-toggle.py        # Enable/disable JARVIS voice
-│   │   └── voice.md                # Full voice system documentation
-│   └── web-artifacts-builder/       # Includes scripts/ and LICENSE.txt
-├── install-skills.py                # Skills install + hook fix + CLAUDE.md generation
-├── update-django-skill.py           # Version scout: checks PyPI, scrapes official docs
-├── plugins.md                       # Full plugin list with install commands + usage guide
-├── CLAUDE.md                        # Project config (auto-loaded by Claude Code)
-├── startup.md                       # Original startup vision document
-├── bootstrap-5.3-reference.md       # Standalone Bootstrap reference
-├── animation-libraries-reference.md # Standalone animation library guide
+│   ├── django-python/                   # Django+Python reference + versions.json
+│   ├── jarvis-voice/                    # JARVIS TTS system
+│   │   ├── speak.py                     # Main TTS engine
+│   │   ├── jarvis-toggle.py             # Enable/disable voice
+│   │   └── voice.md                     # Voice documentation
+│   └── web-artifacts-builder/           # React+shadcn artifact builder
+├── docs/
+│   ├── HOW-TO-USE.md                    # Full usage guide
+│   ├── plugins.md                       # Plugin list + install commands
+│   ├── bootstrap-5.3-reference.md       # Standalone Bootstrap reference
+│   └── animation-libraries-reference.md # Animation library guide
+├── CLAUDE.md                            # Project config (auto-loaded)
 ├── .gitignore
 └── README.md
 ```

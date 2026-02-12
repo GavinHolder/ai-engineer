@@ -26,13 +26,13 @@ git clone <repo-url> ai_engineer
 cd ai_engineer
 
 # Install all skills to ~/.claude/skills/
-python install-skills.py
+python scripts/install-skills.py
 
 # Initialize a specific project with CLAUDE.md + memory files
-python install-skills.py --init /path/to/your/project
+python scripts/install-skills.py --init /path/to/your/project
 
 # Just detect what frameworks a project uses
-python install-skills.py --detect /path/to/your/project
+python scripts/install-skills.py --detect /path/to/your/project
 ```
 
 After installation, Claude Code automatically picks up the skills when you work in any project. No manual activation needed.
@@ -55,7 +55,7 @@ After installation, Claude Code automatically picks up the skills when you work 
 
 ```bash
 # From the ai_engineer repo directory:
-python install-skills.py
+python scripts/install-skills.py
 
 # Output:
 #   PRE-FLIGHT: Checking Claude CLI
@@ -89,7 +89,7 @@ python install-skills.py
 python /path/to/ai_engineer/install-skills.py
 
 # Or pass the project path:
-python install-skills.py --init /path/to/my-django-app
+python scripts/install-skills.py --init /path/to/my-django-app
 ```
 
 This creates:
@@ -424,7 +424,7 @@ $ python /path/to/install-skills.py
 Running `--init` sets up a complete session management system:
 
 ```bash
-python install-skills.py --init /path/to/project
+python scripts/install-skills.py --init /path/to/project
 ```
 
 ### What Gets Created
@@ -544,7 +544,7 @@ After modifying any skill file in the repo:
 
 ```bash
 # Re-run installer to push updates to ~/.claude/skills/
-python install-skills.py
+python scripts/install-skills.py
 ```
 
 ### Creating Your Own Skills
@@ -571,7 +571,9 @@ After creating a new skill, run `install-skills.py` to install it globally.
 
 ```
 ai_engineer/
-  install-skills.py          # Installer script
+  scripts/
+    install-skills.py      # Installer script
+    update-django-skill.py # Django version updater
   HOW-TO-USE.md              # This file
   CLAUDE.md                  # Project-specific Claude config
   skills/

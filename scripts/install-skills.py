@@ -1140,7 +1140,7 @@ def main():
     print("  by GavinHolder")
     print("=" * 60)
 
-    repo_root = Path(__file__).parent
+    repo_root = Path(__file__).parent.parent
 
     # Step 0: Ensure Claude CLI is available
     has_claude = ensure_claude_cli()
@@ -1184,10 +1184,10 @@ def main():
         print("  You're running from the ai-engineer repo itself.")
         print("  To generate CLAUDE.md for a project, run from that project:")
         print(f"    cd <your-project>")
-        print(f"    python \"{repo_root / 'install-skills.py'}\"")
+        print(f"    python \"{repo_root / 'scripts' / 'install-skills.py'}\"")
         print()
         print("  Or pass the project path as argument:")
-        print(f"    python install-skills.py --init <project-path>")
+        print(f"    python scripts/install-skills.py --init <project-path>")
     else:
         generate_claude_md(target)
 

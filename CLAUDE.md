@@ -93,4 +93,4 @@ python skills/jarvis-voice/speak.py --text "Hello" --rate "+15%" --pitch "-10Hz"
 - Natural pauses added automatically at sentence/phrase boundaries
 
 ### Installation
-The `install-skills.py` script copies `skills/jarvis-voice/` to `~/.claude/skills/jarvis-voice/` for global availability.
+The `scripts/install-skills.py` script copies `skills/jarvis-voice/` to `~/.claude/skills/jarvis-voice/` for global availability.
