@@ -32,41 +32,218 @@
 
 ## 1. GRID SYSTEM
 
-### Breakpoints
+Bootstrap's grid is a **12-column, mobile-first flexbox system** with 6 responsive breakpoints. It uses containers for centering, rows as flex wrappers, and columns for content sizing. Gutters create spacing via horizontal padding on columns offset by negative margins on rows.
 
-| Breakpoint | Infix | Min-Width | Container Max |
-|------------|-------|-----------|---------------|
-| Extra small | (none) | <576px | 100% |
-| Small | `sm` | >=576px | 540px |
-| Medium | `md` | >=768px | 720px |
-| Large | `lg` | >=992px | 960px |
-| Extra large | `xl` | >=1200px | 1140px |
-| XXL | `xxl` | >=1400px | 1320px |
+### Key Principles
 
-### Containers
+1. **Mobile-first** — base classes target xs; higher breakpoints override upward
+2. **Breakpoints are min-width** — `.col-sm-4` applies at sm, md, lg, xl, xxl
+3. **Flexbox-based** — native flex properties work alongside grid classes
+4. **12-column system** — all columns divide into 12ths
+5. **Gutters on columns** — horizontal padding creates spacing (default 1.5rem / 0.75rem per side)
+6. **Negative margins on rows** — counteracts column padding for container alignment
+7. **Percentage-based widths** — maintains relative sizing responsively
 
+### 1.1 Breakpoints
+
+| Breakpoint | Infix | Min-Width | Container Max | Class Prefix |
+|------------|-------|-----------|---------------|--------------|
+| Extra small | (none) | <576px | 100% (auto) | `.col-` |
+| Small | `sm` | >=576px | 540px | `.col-sm-` |
+| Medium | `md` | >=768px | 720px | `.col-md-` |
+| Large | `lg` | >=992px | 960px | `.col-lg-` |
+| Extra large | `xl` | >=1200px | 1140px | `.col-xl-` |
+| XXL | `xxl` | >=1400px | 1320px | `.col-xxl-` |
+
+### 1.2 Containers
+
+Containers are the fundamental layout wrapper. **Required when using the default grid system.**
+
+**Types:**
 ```
-.container          - Responsive pixel-width at each breakpoint
+.container          - Responsive pixel max-width at each breakpoint
 .container-fluid    - 100% width at all breakpoints
-.container-sm       - 100% until sm breakpoint
-.container-md       - 100% until md breakpoint
-.container-lg       - 100% until lg breakpoint
-.container-xl       - 100% until xl breakpoint
-.container-xxl      - 100% until xxl breakpoint
+.container-sm       - 100% until sm, then fixed max-widths
+.container-md       - 100% until md, then fixed max-widths
+.container-lg       - 100% until lg, then fixed max-widths
+.container-xl       - 100% until xl, then fixed max-widths
+.container-xxl      - 100% until xxl, then fixed max-width
 ```
 
-### Rows & Columns
+**Container widths at each breakpoint:**
 
+| Container | <576px | >=576px | >=768px | >=992px | >=1200px | >=1400px |
+|-----------|--------|---------|---------|---------|----------|----------|
+| `.container` | 100% | 540px | 720px | 960px | 1140px | 1320px |
+| `.container-sm` | 100% | 540px | 720px | 960px | 1140px | 1320px |
+| `.container-md` | 100% | 100% | 720px | 960px | 1140px | 1320px |
+| `.container-lg` | 100% | 100% | 100% | 960px | 1140px | 1320px |
+| `.container-xl` | 100% | 100% | 100% | 100% | 1140px | 1320px |
+| `.container-xxl` | 100% | 100% | 100% | 100% | 100% | 1320px |
+| `.container-fluid` | 100% | 100% | 100% | 100% | 100% | 100% |
+
+```html
+<div class="container">.container</div>
+<div class="container-sm">.container-sm</div>
+<div class="container-md">.container-md</div>
+<div class="container-lg">.container-lg</div>
+<div class="container-xl">.container-xl</div>
+<div class="container-xxl">.container-xxl</div>
+<div class="container-fluid">.container-fluid</div>
+```
+
+### 1.3 Core Structure
+
+```html
+<div class="container">
+  <div class="row">
+    <div class="col">Content</div>
+  </div>
+</div>
+```
+
+### 1.4 Rows & Columns
+
+**Column classes:**
 ```
 .row                          - Flex container for columns
 .col                          - Equal-width auto column
 .col-{1-12}                   - Specific width (xs and up)
 .col-auto                     - Natural content width
+.col-{sm|md|lg|xl|xxl}       - Equal-width at breakpoint
 .col-{sm|md|lg|xl|xxl}-{1-12} - Responsive column widths
 .col-{sm|md|lg|xl|xxl}-auto   - Responsive auto width
 ```
 
-### Row Columns (control number of columns)
+#### Five Grid Tiers (same layout, different activation breakpoints)
+
+Each tier stacks vertically below its breakpoint, becomes horizontal at/above it:
+
+```html
+<!-- xs: always horizontal (no breakpoint needed) -->
+<div class="row">
+  <div class="col-4">.col-4</div>
+  <div class="col-4">.col-4</div>
+  <div class="col-4">.col-4</div>
+</div>
+
+<!-- sm: stacks below 576px, horizontal at >=576px -->
+<div class="row">
+  <div class="col-sm-4">.col-sm-4</div>
+  <div class="col-sm-4">.col-sm-4</div>
+  <div class="col-sm-4">.col-sm-4</div>
+</div>
+
+<!-- md: stacks below 768px, horizontal at >=768px -->
+<div class="row">
+  <div class="col-md-4">.col-md-4</div>
+  <div class="col-md-4">.col-md-4</div>
+  <div class="col-md-4">.col-md-4</div>
+</div>
+
+<!-- lg: stacks below 992px, horizontal at >=992px -->
+<div class="row">
+  <div class="col-lg-4">.col-lg-4</div>
+  <div class="col-lg-4">.col-lg-4</div>
+  <div class="col-lg-4">.col-lg-4</div>
+</div>
+
+<!-- xl: stacks below 1200px, horizontal at >=1200px -->
+<div class="row">
+  <div class="col-xl-4">.col-xl-4</div>
+  <div class="col-xl-4">.col-xl-4</div>
+  <div class="col-xl-4">.col-xl-4</div>
+</div>
+
+<!-- xxl: stacks below 1400px, horizontal at >=1400px -->
+<div class="row">
+  <div class="col-xxl-4">.col-xxl-4</div>
+  <div class="col-xxl-4">.col-xxl-4</div>
+  <div class="col-xxl-4">.col-xxl-4</div>
+</div>
+```
+
+#### Equal-Width Columns (auto-layout)
+
+Use unit-less `.col` for equal-width distribution:
+
+```html
+<div class="row">
+  <div class="col">1 of 2</div>
+  <div class="col">2 of 2</div>
+</div>
+
+<div class="row">
+  <div class="col">1 of 3</div>
+  <div class="col">1 of 3</div>
+  <div class="col">1 of 3</div>
+</div>
+```
+
+#### Setting One Column Width (siblings auto-resize)
+
+```html
+<div class="row">
+  <div class="col">Auto</div>
+  <div class="col-6">Fixed 6 (wider)</div>
+  <div class="col">Auto</div>
+</div>
+```
+
+#### Variable Width Content
+
+Use `.col-{breakpoint}-auto` to size based on content:
+
+```html
+<div class="row">
+  <div class="col col-lg-2">1 of 3</div>
+  <div class="col-md-auto">Variable width content</div>
+  <div class="col col-lg-2">3 of 3</div>
+</div>
+```
+
+#### Three Equal Columns
+
+```html
+<div class="row">
+  <div class="col-md-4">.col-md-4</div>
+  <div class="col-md-4">.col-md-4</div>
+  <div class="col-md-4">.col-md-4</div>
+</div>
+```
+
+#### Three Unequal Columns
+
+```html
+<div class="row">
+  <div class="col-md-3">.col-md-3</div>
+  <div class="col-md-6">.col-md-6</div>
+  <div class="col-md-3">.col-md-3</div>
+</div>
+```
+
+#### Two Columns
+
+```html
+<div class="row">
+  <div class="col-md-8">.col-md-8</div>
+  <div class="col-md-4">.col-md-4</div>
+</div>
+```
+
+#### Full Width, Single Column
+
+No grid needed — content in a container fills the width:
+
+```html
+<div class="container">
+  <p>Full width content, no column classes required.</p>
+</div>
+```
+
+### 1.5 Row Columns (control column count from the parent)
+
+Set column count on the parent `.row` instead of each `.col`:
 
 ```
 .row-cols-{1-6}                          - Set columns per row
@@ -74,24 +251,255 @@
 .row-cols-{sm|md|lg|xl|xxl}-{1-6|auto}  - Responsive row columns
 ```
 
-### Gutters
+```html
+<!-- 2 columns per row -->
+<div class="row row-cols-2">
+  <div class="col">Column</div>
+  <div class="col">Column</div>
+  <div class="col">Column</div>
+  <div class="col">Column</div>
+</div>
 
+<!-- 3 columns using row-cols -->
+<div class="row row-cols-md-3">
+  <div class="col">.col child of .row-cols-md-3</div>
+  <div class="col">.col child of .row-cols-md-3</div>
+  <div class="col">.col child of .row-cols-md-3</div>
+</div>
+
+<!-- Auto-width columns -->
+<div class="row row-cols-auto">
+  <div class="col">Variable</div>
+  <div class="col">Width</div>
+</div>
+
+<!-- Individual col can override -->
+<div class="row row-cols-4">
+  <div class="col">Column</div>
+  <div class="col-6">Spans 2 (overrides row-cols)</div>
+  <div class="col">Column</div>
+</div>
+
+<!-- Responsive row columns -->
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-4">
+  <div class="col">Column</div>
+  <div class="col">Column</div>
+  <div class="col">Column</div>
+  <div class="col">Column</div>
+</div>
 ```
-.g-{0-5}    - All gutters
-.gx-{0-5}   - Horizontal gutters
-.gy-{0-5}   - Vertical gutters
-.g-{sm|md|lg|xl|xxl}-{0-5}   - Responsive gutters
+
+### 1.6 Nesting
+
+Create nested grids by placing a new `.row` inside a `.col`. Nested columns should add to 12 or fewer (not required to use all 12):
+
+```html
+<div class="container">
+  <!-- Two columns with nested row inside the first -->
+  <div class="row">
+    <div class="col-md-8">
+      .col-md-8
+      <div class="row">
+        <div class="col-md-6">.col-md-6 (nested)</div>
+        <div class="col-md-6">.col-md-6 (nested)</div>
+      </div>
+    </div>
+    <div class="col-md-4">.col-md-4</div>
+  </div>
+</div>
+
+<!-- Deeper nesting example -->
+<div class="container">
+  <div class="row">
+    <div class="col-sm-3">Level 1: .col-sm-3</div>
+    <div class="col-sm-9">
+      <div class="row">
+        <div class="col-8 col-sm-6">Level 2: .col-8 .col-sm-6</div>
+        <div class="col-4 col-sm-6">Level 2: .col-4 .col-sm-6</div>
+      </div>
+    </div>
+  </div>
+</div>
 ```
 
-### Offsets
+### 1.7 Mix and Match (Responsive Multi-Breakpoint Layouts)
 
+#### Mobile and Desktop
+
+Columns use different widths at different breakpoints. Below `md` the `.col-6` classes create 2-column layout; at `md`+ the `.col-md-*` classes override:
+
+```html
+<div class="row">
+  <div class="col-md-8">.col-md-8</div>
+  <div class="col-6 col-md-4">.col-6 .col-md-4</div>
+  <div class="col-6 col-md-4">.col-6 .col-md-4</div>
+  <div class="col-6 col-md-4">.col-6 .col-md-4</div>
+  <div class="col-6 col-md-4">.col-6 .col-md-4</div>
+  <div class="col-6">.col-6</div>
+  <div class="col-6">.col-6</div>
+</div>
 ```
-.offset-{1-11}                          - Offset columns
-.offset-{sm|md|lg|xl|xxl}-{0-11}       - Responsive offsets
+
+#### Mobile, Tablet, and Desktop
+
+Three breakpoints for progressive layout changes:
+
+```html
+<div class="row">
+  <div class="col-sm-6 col-lg-8">.col-sm-6 .col-lg-8</div>
+  <div class="col-6 col-lg-4">.col-6 .col-lg-4</div>
+  <div class="col-6 col-sm-4">.col-6 .col-sm-4</div>
+  <div class="col-6 col-sm-4">.col-6 .col-sm-4</div>
+  <div class="col-6 col-sm-4">.col-6 .col-sm-4</div>
+</div>
 ```
 
-### Alignment
+### 1.8 Gutters (Column Spacing)
 
+Gutters are the padding between columns. Default: **1.5rem** (24px total, 0.75rem each side).
+
+**Classes:**
+```
+.g-{0-5}                              - Both horizontal and vertical gutters
+.gx-{0-5}                             - Horizontal gutters only
+.gy-{0-5}                             - Vertical gutters only
+.g-{sm|md|lg|xl|xxl}-{0-5}            - Responsive combined gutters
+.gx-{sm|md|lg|xl|xxl}-{0-5}           - Responsive horizontal gutters
+.gy-{sm|md|lg|xl|xxl}-{0-5}           - Responsive vertical gutters
+```
+
+**Gutter size values:**
+
+| Class | Size | Calc |
+|-------|------|------|
+| `.g-0` / `.gx-0` / `.gy-0` | 0 | — |
+| `.g-1` / `.gx-1` / `.gy-1` | 0.25rem (4px) | $spacer * 0.25 |
+| `.g-2` / `.gx-2` / `.gy-2` | 0.5rem (8px) | $spacer * 0.5 |
+| `.g-3` / `.gx-3` / `.gy-3` | 1rem (16px) | $spacer |
+| `.g-4` / `.gx-4` / `.gy-4` | 1.5rem (24px) | $spacer * 1.5 |
+| `.g-5` / `.gx-5` / `.gy-5` | 3rem (48px) | $spacer * 3 |
+
+#### Horizontal Gutters (.gx-*)
+
+```html
+<div class="container px-4">
+  <div class="row gx-5">
+    <div class="col"><div class="p-3">Column</div></div>
+    <div class="col"><div class="p-3">Column</div></div>
+  </div>
+</div>
+```
+
+**Note:** When using larger horizontal gutters, add matching container padding (`.px-4`) or use `.overflow-hidden` on the container to prevent horizontal overflow.
+
+#### Vertical Gutters (.gy-*)
+
+```html
+<div class="container overflow-hidden">
+  <div class="row gy-5">
+    <div class="col-6"><div class="p-3">Column</div></div>
+    <div class="col-6"><div class="p-3">Column</div></div>
+    <div class="col-6"><div class="p-3">Column</div></div>
+    <div class="col-6"><div class="p-3">Column</div></div>
+  </div>
+</div>
+```
+
+**Note:** Use `.overflow-hidden` wrapper to prevent bottom overflow from vertical gutters.
+
+#### Combined Gutters (.g-*)
+
+```html
+<div class="container">
+  <div class="row g-3">
+    <div class="col-6"><div class="p-3">Column</div></div>
+    <div class="col-6"><div class="p-3">Column</div></div>
+    <div class="col-6"><div class="p-3">Column</div></div>
+    <div class="col-6"><div class="p-3">Column</div></div>
+  </div>
+</div>
+```
+
+#### Responsive Gutters
+
+```html
+<!-- Different gutter widths at different breakpoints -->
+<div class="row g-2 g-lg-3">
+  <div class="col-6">Column</div>
+  <div class="col-6">Column</div>
+</div>
+
+<!-- Row columns with responsive gutters -->
+<div class="row row-cols-2 row-cols-lg-5 g-2 g-lg-3">
+  <div class="col"><div class="p-3">Column</div></div>
+  <div class="col"><div class="p-3">Column</div></div>
+  <div class="col"><div class="p-3">Column</div></div>
+  <div class="col"><div class="p-3">Column</div></div>
+</div>
+```
+
+#### No Gutters (.g-0)
+
+Removes all gutters — eliminates negative margin from `.row` and horizontal padding from columns:
+
+```html
+<div class="row g-0">
+  <div class="col-sm-6 col-md-8">.col-sm-6 .col-md-8</div>
+  <div class="col-6 col-md-4">.col-6 .col-md-4</div>
+</div>
+```
+
+**Edge-to-edge design:** Drop the container and add `.mx-0` to `.row` to prevent overflow.
+
+### 1.9 Alignment
+
+#### Vertical Alignment (on row)
+
+```html
+<!-- All columns top-aligned -->
+<div class="row align-items-start">
+  <div class="col">Top</div>
+  <div class="col">Top</div>
+  <div class="col">Top</div>
+</div>
+
+<!-- All columns center-aligned -->
+<div class="row align-items-center">
+  <div class="col">Center</div>
+  <div class="col">Center</div>
+  <div class="col">Center</div>
+</div>
+
+<!-- All columns bottom-aligned -->
+<div class="row align-items-end">
+  <div class="col">Bottom</div>
+  <div class="col">Bottom</div>
+  <div class="col">Bottom</div>
+</div>
+```
+
+#### Individual Column Vertical Alignment
+
+```html
+<div class="row">
+  <div class="col align-self-start">Top</div>
+  <div class="col align-self-center">Center</div>
+  <div class="col align-self-end">Bottom</div>
+</div>
+```
+
+#### Horizontal Alignment (on row)
+
+```html
+<div class="row justify-content-start">...</div>
+<div class="row justify-content-center">...</div>
+<div class="row justify-content-end">...</div>
+<div class="row justify-content-around">...</div>
+<div class="row justify-content-between">...</div>
+<div class="row justify-content-evenly">...</div>
+```
+
+**All alignment classes (responsive):**
 ```
 .justify-content-{start|end|center|between|around|evenly}
 .justify-content-{sm|md|lg|xl|xxl}-{start|end|center|between|around|evenly}
@@ -101,9 +509,224 @@
 .align-self-{sm|md|lg|xl|xxl}-{start|end|center|baseline|stretch}
 ```
 
-### Example
+### 1.10 Column Wrapping and Breaks
+
+When more than 12 columns in a row, extras wrap to the next line:
 
 ```html
+<div class="row">
+  <div class="col-9">.col-9</div>
+  <div class="col-4">.col-4 (9+4=13 > 12, wraps to new line)</div>
+  <div class="col-6">.col-6 (continues on new line)</div>
+</div>
+```
+
+**Force column breaks** with a `w-100` element:
+
+```html
+<div class="row">
+  <div class="col-6 col-sm-3">.col-6 .col-sm-3</div>
+  <div class="col-6 col-sm-3">.col-6 .col-sm-3</div>
+  <div class="w-100"></div><!-- Force break -->
+  <div class="col-6 col-sm-3">.col-6 .col-sm-3</div>
+  <div class="col-6 col-sm-3">.col-6 .col-sm-3</div>
+</div>
+```
+
+**Responsive column breaks** (break only at specific breakpoints):
+
+```html
+<div class="row">
+  <div class="col-6 col-sm-4">.col-6 .col-sm-4</div>
+  <div class="col-6 col-sm-4">.col-6 .col-sm-4</div>
+  <div class="w-100 d-none d-md-block"></div><!-- Break only at md+ -->
+  <div class="col-6 col-sm-4">.col-6 .col-sm-4</div>
+  <div class="col-6 col-sm-4">.col-6 .col-sm-4</div>
+</div>
+```
+
+### 1.11 Reordering
+
+Control **visual order** (not DOM order) with `.order-*` classes:
+
+```
+.order-{0-5}                             - Visual order (0 = first)
+.order-{sm|md|lg|xl|xxl}-{0-5}          - Responsive order
+.order-first                             - order: -1
+.order-last                              - order: 6
+.order-{sm|md|lg|xl|xxl}-first           - Responsive first
+.order-{sm|md|lg|xl|xxl}-last            - Responsive last
+```
+
+```html
+<div class="row">
+  <div class="col">First in DOM, no order applied</div>
+  <div class="col order-5">Second in DOM, appears last</div>
+  <div class="col order-1">Third in DOM, appears second</div>
+</div>
+
+<div class="row">
+  <div class="col order-last">First in DOM, ordered last</div>
+  <div class="col">Second in DOM, unordered</div>
+  <div class="col order-first">Third in DOM, ordered first</div>
+</div>
+```
+
+### 1.12 Offsetting Columns
+
+#### Offset Classes
+
+Move columns right using `.offset-*` (increases left margin by N columns):
+
+```
+.offset-{1-11}                          - Offset columns (xs)
+.offset-{sm|md|lg|xl|xxl}-{0-11}       - Responsive offsets
+```
+
+```html
+<div class="row">
+  <div class="col-md-4">.col-md-4</div>
+  <div class="col-md-4 offset-md-4">.col-md-4 .offset-md-4</div>
+</div>
+<div class="row">
+  <div class="col-md-3 offset-md-3">.col-md-3 .offset-md-3</div>
+  <div class="col-md-3 offset-md-3">.col-md-3 .offset-md-3</div>
+</div>
+<div class="row">
+  <div class="col-md-6 offset-md-3">.col-md-6 .offset-md-3</div>
+</div>
+```
+
+**Resetting offsets at different breakpoints:**
+
+```html
+<div class="row">
+  <div class="col-sm-5 col-md-6">.col-sm-5 .col-md-6</div>
+  <div class="col-sm-5 offset-sm-2 col-md-6 offset-md-0">
+    Offset at sm, reset at md
+  </div>
+</div>
+```
+
+#### Margin Utilities for Offsetting
+
+Use `.ms-auto` and `.me-auto` to force sibling columns apart:
+
+```html
+<div class="row">
+  <div class="col-md-4">.col-md-4</div>
+  <div class="col-md-4 ms-auto">.col-md-4 .ms-auto (pushed right)</div>
+</div>
+<div class="row">
+  <div class="col-md-3 ms-md-auto">.col-md-3 .ms-md-auto</div>
+  <div class="col-md-3 ms-md-auto">.col-md-3 .ms-md-auto</div>
+</div>
+<div class="row">
+  <div class="col-auto me-auto">.col-auto .me-auto</div>
+  <div class="col-auto">.col-auto</div>
+</div>
+```
+
+### 1.13 Standalone Column Classes
+
+Use `.col-*` classes **outside a `.row`** to give elements specific widths. When used outside rows, paddings are omitted:
+
+```html
+<div class="col-3 p-3 mb-2">.col-3: width of 25%</div>
+<div class="col-sm-9 p-3">.col-sm-9: width of 75% above sm</div>
+```
+
+**Responsive floated images:**
+
+```html
+<div class="clearfix">
+  <img src="..." class="col-md-6 float-md-end mb-3 ms-md-3" alt="...">
+  <p>Text wraps around the floated image gracefully.</p>
+</div>
+```
+
+### 1.14 Grid Sass Variables & Mixins
+
+```scss
+// Variables
+$grid-columns:      12;
+$grid-gutter-width: 1.5rem;
+$grid-row-columns:  6;
+
+$grid-breakpoints: (
+  xs: 0, sm: 576px, md: 768px, lg: 992px, xl: 1200px, xxl: 1400px
+);
+
+$container-max-widths: (
+  sm: 540px, md: 720px, lg: 960px, xl: 1140px, xxl: 1320px
+);
+
+$gutters: (
+  0: 0, 1: $spacer * .25, 2: $spacer * .5, 3: $spacer, 4: $spacer * 1.5, 5: $spacer * 3
+);
+
+// Mixins
+@include make-container();          // Create custom container
+@include make-row();                // Create row wrapper
+@include make-col-ready();          // Prepare column (width-agnostic)
+@include make-col($size, $columns); // Create sized column
+@include make-col-offset($size, $columns); // Offset with margins
+```
+
+**Mixin usage example:**
+
+```scss
+.example-container { @include make-container(); width: 800px; }
+.example-row { @include make-row(); }
+.example-main {
+  @include make-col-ready();
+  @include media-breakpoint-up(sm) { @include make-col(6); }
+  @include media-breakpoint-up(lg) { @include make-col(8); }
+}
+.example-sidebar {
+  @include make-col-ready();
+  @include media-breakpoint-up(sm) { @include make-col(6); }
+  @include media-breakpoint-up(lg) { @include make-col(4); }
+}
+```
+
+### 1.15 Common Grid Patterns (Quick Reference)
+
+```html
+<!-- Sidebar + Main content -->
+<div class="container">
+  <div class="row">
+    <div class="col-md-3">Sidebar</div>
+    <div class="col-md-9">Main</div>
+  </div>
+</div>
+
+<!-- Holy grail: sidebar, main, sidebar -->
+<div class="container">
+  <div class="row">
+    <div class="col-md-3">Left sidebar</div>
+    <div class="col-md-6">Main content</div>
+    <div class="col-md-3">Right sidebar</div>
+  </div>
+</div>
+
+<!-- Card grid with equal heights -->
+<div class="container">
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    <div class="col"><div class="card h-100">...</div></div>
+    <div class="col"><div class="card h-100">...</div></div>
+    <div class="col"><div class="card h-100">...</div></div>
+  </div>
+</div>
+
+<!-- Centered content column -->
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-8">Centered content</div>
+  </div>
+</div>
+
+<!-- Responsive stacking: full width mobile, side-by-side desktop -->
 <div class="container">
   <div class="row g-4">
     <div class="col-12 col-md-8">.col-12 .col-md-8</div>
