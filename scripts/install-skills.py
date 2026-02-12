@@ -243,352 +243,176 @@ def fix_windows_hooks() -> int:
 
 AI_ENGINEER_MARKER = "<!-- AI Engineer Toolkit -->"
 
-CLAUDE_MD_TEMPLATE = r"""# Claude Code Session Guide - {project_name}
+CLAUDE_MD_TEMPLATE = r"""# {project_name} - Claude Code Guide
 
-**Project:** {project_name}
-**Created:** {timestamp}
-**Last Updated:** {timestamp}
-
----
-
-## Quick Start
-
-### Essential Files (Read These First)
-1. `.claude/memory/SESSION_CONTEXT.md` - Active tasks and current state
-2. `.claude/memory/TASK_PROTOCOL.md` - Hierarchical task management (5 levels, checkpoints)
-3. `.claude/memory/SESSION_CHANGELOG.md` - Session history with timestamps
-4. `.claude/memory/LEARNED_PATTERNS.md` - Continuous learning log
-5. `CLAUDE.md` - This file (session guide and project rules)
-
-### Session Start Protocol
-1. Read `SESSION_CONTEXT.md` for active tasks and state
-2. Read `SESSION_CHANGELOG.md` for last session summary
-3. Resume from "Next Action" in SESSION_CONTEXT.md
-4. If new session: create task list, update SESSION_CONTEXT.md
+**Generated:** {timestamp} | **Toolkit:** AI Engineer by GavinHolder
+**Max size:** Keep this file under 40,000 characters. Move details to `.claude/memory/` files.
 
 ---
 
-## Core Principles
+## Communication Rules
 
-### 1. Adversarial Verification (Non-Negotiable)
-
-Every feature implementation must be classified and verified at the appropriate level:
-
-| Level | Risk | Examples | Workflow |
-|-------|------|----------|----------|
-| **Level 4 (CRITICAL)** | Data loss, security, money | Auth, payments, data migrations, API keys | `/plan` -> `/adversarial-review` -> TDD -> `/security-review` -> `/code-review` |
-| **Level 3 (HIGH)** | Breaking changes, integrations | DB schema, external APIs, deployment configs | `/plan` -> `/adversarial-review` -> TDD -> `/code-review` |
-| **Level 2 (MEDIUM)** | Standard features | UI components, new pages, utilities | `/plan` -> Code -> `/code-review` |
-| **Level 1 (LOW)** | Minimal risk | Docs, tests, formatting, refactoring | Code -> Optional review |
-
-**Adversarial Review Checklist (Level 3+):**
-- [ ] Edge cases identified and tested
-- [ ] Failure modes documented with mitigations
-- [ ] Input validation at all boundaries
-- [ ] Error handling covers all paths (no silent failures)
-- [ ] Security implications reviewed (OWASP Top 10)
-- [ ] Performance implications considered
-- [ ] Rollback plan defined
-
-### 2. Test-Driven Development (Level 2+)
-
-```
-1. RED: Write failing tests first (proves tests are valid)
-2. GREEN: Write minimum code to pass
-3. VALIDATE: Run lint + typecheck + full test suite
-4. COMPLETE: Only after ALL validations pass
-```
-
-**Never skip TDD. Tests must fail before implementation begins.**
-
-### 3. Verification Before Completion
-
-Before claiming ANY task is done:
-- [ ] All tests passing
-- [ ] Linter clean (no errors)
-- [ ] Type checker clean (if applicable)
-- [ ] Manual verification of the feature
-- [ ] Edge cases tested
-- [ ] No regressions introduced
-
----
-
-## Task Management Protocol (Non-Negotiable)
-
-**NOTHING gets done without tasks.** Before writing any code, making any change, or starting any work, you MUST create a task list first. This is not optional. This is how we work.
-
-### Why This Matters
-
-Without tasks, Claude loses track of multi-step work, skips steps, forgets what's next after fixing a bug, and fails to recover after context resets. Tasks are the backbone of reliable work.
-
-### Rule: Always Create Tasks First
-
-1. **Receive a request** -> Create tasks BEFORE touching any code
-2. **Each task gets subtasks** if it involves more than one step
-3. **Mark tasks in_progress** before starting, **completed** when done
-4. **Never skip ahead** - finish or explicitly pause the current task before moving to the next
-
-### Hierarchical Numbering (5 Levels Max)
-
-```
-1. Main Task (Level 1)
-   1.1 Subtask (Level 2)
-       1.1.1 Sub-subtask (Level 3)
-             1.1.1.1 Detail task (Level 4)
-                     1.1.1.1.1 Granular task (Level 5 - max)
-```
-
-### Debug Tasks (Fixing Bugs Mid-Step)
-
-When something breaks while working on a step, create a **debug task** as a child of the current task. Do NOT abandon the parent task or skip ahead. Fix the issue, then resume exactly where you left off.
-
-```
-1. Build user dashboard
-   1.1 Create layout component [IN PROGRESS]
-   1.1.debug.a: CSS grid not rendering correctly
-       1.1.debug.a.1 Investigate - check browser output
-       1.1.debug.a.2 Fix - missing display:grid on container
-       1.1.debug.a.3 Verify fix renders correctly
-   1.1 [RESUMED] - Continue layout component
-   1.2 Add data widgets (NEXT - untouched, waiting)
-```
-
-**Key rule:** Debug tasks fix the current step. They do NOT affect or reorder the remaining steps. Steps 1.2, 1.3, etc. stay exactly where they are.
-
-### Amendment Tasks (Revising a Completed Step)
-
-When a completed step needs changes (user feedback, missed requirement, etc.), create an **amendment task**. Do NOT re-do the entire step.
-
-```
-1. Build API endpoints
-   1.1 Create GET /users [COMPLETE]
-   1.2 Create POST /users [COMPLETE]
-   1.2.amend.a: Add email validation to POST /users
-       1.2.amend.a.1 Add validation logic
-       1.2.amend.a.2 Update tests
-       1.2.amend.a.3 Verify
-   1.3 Create DELETE /users (NEXT - still in queue)
-```
-
-### Deviation Handling (Unexpected Discoveries)
-
-When issues are discovered mid-task that aren't bugs in the current step but broader problems:
-
-```
-1. Main Task
-   1.1 Subtask [IN PROGRESS]
-   DEVIATION 1.1.a: Discovered auth middleware is missing
-       1.1.a.1 Investigate scope of the issue
-       1.1.a.2 Fix implementation
-       1.1.a.3 Verify fix with tests
-   1.2 Continue original plan (unchanged)
-```
-
-**Multiple deviations:** a, b, c, d, e
-**Nested deviations:** use Greek letters (alpha, beta, gamma)
-
-### Automatic Checkpoints
-
-**Every 5 main tasks, insert a checkpoint:**
-```
-1. Task 1
-2. Task 2
-3. Task 3
-4. Task 4
-5. Task 5
-6. CHECKPOINT: Review progress, update memory files
-```
-
-**Checkpoint Actions:**
-1. Update `SESSION_CHANGELOG.md` with completed tasks + timestamps
-2. Update `SESSION_CONTEXT.md` with current state
-3. Run continuous learning (extract patterns from what worked/failed)
-4. Report summary to user
-
-**Manual checkpoint:** User says "checkpoint" at any time.
-
-### Task Status Indicators
-
-```
-[ ] NOT STARTED
-[>] IN PROGRESS
-[x] COMPLETE
-[!] DEVIATION - issue discovered
-[D] DEBUG - fixing a bug in current step
-[A] AMENDMENT - revising a completed step
-[-] BLOCKED - waiting on dependency
-[X] FAILED - requires replanning
-[#] CHECKPOINT
-```
-
----
-
-## Session Management
-
-### Session Changelog (Mandatory)
-
-Every session MUST be logged in `.claude/memory/SESSION_CHANGELOG.md`:
-
-```markdown
-### YYYY-MM-DD HH:MM:SS UTC - Session Start
-**Focus:** [What this session will accomplish]
-
-### YYYY-MM-DD HH:MM:SS UTC - Task N: [Name]
-**Status:** COMPLETE/IN PROGRESS/BLOCKED
-**Subtasks:**
-- [x] N.1 Description
-- [x] N.2 Description
-**Result:** [What was accomplished]
-
-### YYYY-MM-DD HH:MM:SS UTC - CHECKPOINT (Tasks 1-5)
-**Tasks Completed:** N
-**Tasks Remaining:** N
-**Memory Files Updated:** [list]
-**Next:** Task N+1 - [Name]
-
-### YYYY-MM-DD HH:MM:SS UTC - Session End
-**Tasks completed:** N
-**Tasks pending:** N
-**Next session:** Resume at [Task]
-**Patterns learned:** [Count]
-```
-
-### Session Context (Active State)
-
-`.claude/memory/SESSION_CONTEXT.md` tracks the live state:
-- Active task list with status indicators
-- Current working state (what files are being edited)
-- Known blockers
-- System configuration summary
-- Next action (always specific and actionable)
-
----
-
-## Continuous Learning
-
-### When to Learn
-
-After every checkpoint and session end:
-1. **What worked?** Extract successful patterns
-2. **What failed?** Document mistakes and root causes
-3. **What was slow?** Identify workflow improvements
-4. **What was new?** Capture domain knowledge
-
-### Where to Store
-
-`.claude/memory/LEARNED_PATTERNS.md` organized by category:
-- **Code Patterns** - File organization, naming, structure
-- **Architecture Patterns** - Service layer, data flow, API design
-- **Frontend Patterns** - Components, styling, animation
-- **Domain Knowledge** - Business logic, constraints, invariants
-- **Mistakes & Fixes** - Bugs encountered and how they were resolved
-- **User Preferences** - Communication style, UI aesthetic, workflow
-
-### Auto-Apply
-
-All learned patterns are automatically applied to future work.
-When a pattern conflicts with a new requirement, flag it and ask.
-
----
-
-## Development Workflow
-
-### Starting New Features
-
-0. **Create tasks first** - Break the work into tasks and subtasks BEFORE writing any code
-1. **Classify risk level** (Level 1-4)
-2. **Plan first** - Use `/writing-plans` or `/brainstorming` for Level 2+
-3. **Visualize UI** - Use `/playground` to mock up, or `visual-debugging` to screenshot reference sites
-4. **For Level 3+**: Run `/adversarial-review` before coding
-5. **Write tests first** (TDD for Level 2+)
-6. **Implement** - Follow code style rules below. Create debug/amendment tasks for issues, never skip steps.
-7. **Verify** - Run full test suite, lint, typecheck
-8. **Review** - `/requesting-code-review` for Level 2+
-9. **Update memory** - Log to changelog, extract patterns
-
-### Code Style Rules
-
-- **Max file size:** 500 lines (aim for 200-400)
-- **Max function length:** 20 lines
-- **Max parameters:** 3 (use options object if more)
-- **Max nesting:** 2 levels (flatten with early returns)
-- **Single responsibility** per file and function
-- **No dead code** - delete it, git remembers
-- **No magic numbers** - use named constants
-- **No silent failures** - every error is logged or thrown
-- **Descriptive names** over comments
-
-### Deployment Architecture
-
-All deployments follow Docker + Portainer + Traefik:
-- **Portainer** - Own stack, manages all containers via UI
-- **Traefik** - Own stack, reverse proxy and SSL
-- **Applications** - Each app is its own stack, manually built via Portainer
-- Docker Compose files use `image: build` structure (never auto-build)
-- Always use local VM-mounted volumes for container access
+- **No fluff.** No "Great question", "Good job", "Sure thing", or filler phrases. Get straight to work.
+- **No summaries unless asked.** Do not summarize what you just did after completing a task. The user can see the output. Only summarize if the user explicitly asks.
+- **Optimize token usage.** Every token costs money. Be concise. Say what's needed, nothing more.
+- **No unnecessary confirmations.** Don't say "I'll do X" then do X. Just do X.
+- **Speak through actions.** Let your code, edits, and tool calls be the response. Text is for decisions, questions, and blockers only.
 
 ---
 
 ## Non-Negotiable Rules
 
-These rules apply to EVERY session, EVERY task, no exceptions:
+These apply to EVERY session, EVERY task. No exceptions.
 
-1. **Always create tasks first** - No code gets written without a task list. Period.
-2. **Tasks have subtasks** - Break work into trackable steps. Mark in_progress before starting, completed when done.
-3. **Debug tasks for bugs** - When something breaks mid-step, create a debug child task. Fix it in place. Do NOT skip ahead or lose track of remaining steps.
-4. **Amendment tasks for revisions** - When a completed step needs changes, create an amendment task. Do NOT redo the entire step.
-5. **Visual debugging for UI work** - When debugging UI issues or building creative frontends, use the `visual-debugging` skill (Playwright) to screenshot, inspect, and verify visually.
-6. **Never skip steps** - Remaining tasks in the queue are sacred. Debug/amend the current step without touching the plan.
-7. **Verify before claiming done** - Run tests, check output, confirm visually if applicable.
-
----
-
-## Plugin & Skill Quick Reference
-
-### Workflow Skills (use in order)
-```
-/brainstorming                    -> Before ANY creative work
-/writing-plans                    -> Before multi-step implementations
-/test-driven-development          -> Before writing implementation code
-/systematic-debugging             -> When encountering bugs
-/verification-before-completion   -> Before claiming work is done
-/requesting-code-review           -> Before merging
-/revise-claude-md                 -> End of session to capture learnings
-```
-
-### Frontend Skills
-```
-/frontend-design                  -> Build distinctive UI
-/frontend-aesthetics              -> Typography, color, animation system
-/bootstrap-5                      -> Bootstrap 5.3.8 component reference
-/playground                       -> Interactive HTML explorers
-/web-artifacts-builder            -> Complex React+shadcn artifacts
-visual-debugging                  -> Playwright browser screenshots & design discovery
-```
-
-### Development Skills
-```
-/feature-dev                      -> Guided feature development
-/Django Framework                 -> Django web applications
-/claude-bootstrap-base            -> TDD workflow, coding patterns
-/claude-bootstrap-react-web       -> React development patterns
-```
+1. **Tasks for everything.** Create a task list BEFORE writing any code. Every task gets subtasks if multi-step.
+2. **Never skip steps.** Mark tasks in_progress before starting, completed when done. Remaining tasks stay in queue untouched.
+3. **Debug tasks for bugs.** When something breaks mid-step, create a `debug` child task. Fix in place, resume parent. Do NOT skip ahead.
+4. **Amendment tasks for revisions.** When a completed step needs changes, create an `amend` task. Do NOT redo the entire step.
+5. **Checkpoints every 5-10 tasks.** Pause, update session files, extract learnings, report summary.
+6. **Learn after every task list.** After completing a set of tasks, extract non-obvious knowledge to the relevant skill's `learned/` folder. One topic per file, max 30 lines each. No monolithic learning files.
+7. **Verify before claiming done.** Run tests, check output, confirm visually if UI work.
+8. **Visual debugging for UI.** Use Playwright (`visual-debugging` skill) to screenshot and inspect when code-level debugging isn't enough.
 
 ---
 
-## Session Recovery
+## Session Protocol
 
-If Claude session resets:
-1. Read `.claude/memory/SESSION_CONTEXT.md` (active tasks + state)
-2. Read `.claude/memory/SESSION_CHANGELOG.md` (what happened last)
-3. Read `.claude/memory/LEARNED_PATTERNS.md` (project patterns)
-4. Resume from "Next Action" in SESSION_CONTEXT.md
+### Start
+1. Read `.claude/memory/SESSION_CONTEXT.md` (active tasks)
+2. Read `.claude/memory/SESSION_CHANGELOG.md` (last session)
+3. Scan `learned/` folders in relevant skills for recent learnings
+4. Resume from "Next Action" or create new task list
+
+### During Work
+- Log progress in `SESSION_CONTEXT.md`
+- At checkpoints: update changelog, extract learnings, report to user
+
+### End
+- Update `SESSION_CONTEXT.md` with next action
+- Log session summary in `SESSION_CHANGELOG.md`
+- Extract any remaining learnings
 
 ---
 
-**Document Version:** 1.0
-**Generated by:** install-skills.py
-**Framework:** AI Engineer Startup Toolkit by GavinHolder
+## Task Protocol
+
+### Hierarchy (5 levels max)
+```
+1. Main Task
+   1.1 Subtask
+       1.1.1 Sub-subtask
+```
+
+### Task Types
+```
+[>] IN PROGRESS    [x] COMPLETE       [ ] NOT STARTED
+[D] DEBUG          [A] AMENDMENT      [!] DEVIATION
+[-] BLOCKED        [X] FAILED         [#] CHECKPOINT
+```
+
+### Debug Tasks (fix bugs without losing the plan)
+```
+1.1 Create layout [IN PROGRESS]
+1.1.debug.a: Grid not rendering
+    1.1.debug.a.1 Investigate
+    1.1.debug.a.2 Fix
+1.1 [RESUMED]
+1.2 Add widgets (NEXT - unchanged)
+```
+
+### Amendment Tasks (revise completed steps)
+```
+1.2 Create POST /users [COMPLETE]
+1.2.amend.a: Add email validation
+    1.2.amend.a.1 Add logic
+    1.2.amend.a.2 Update tests
+1.3 Create DELETE /users (NEXT - unchanged)
+```
+
+Full protocol: `.claude/memory/TASK_PROTOCOL.md`
+
+---
+
+## Risk Classification
+
+| Level | Risk | Workflow |
+|-------|------|----------|
+| **4 CRITICAL** | Data, security, money | Plan -> Adversarial review -> TDD -> Security review -> Code review |
+| **3 HIGH** | Breaking changes, integrations | Plan -> Adversarial review -> TDD -> Code review |
+| **2 MEDIUM** | Standard features | Plan -> Code -> Code review |
+| **1 LOW** | Docs, tests, formatting | Code -> Optional review |
+
+---
+
+## Continuous Learning
+
+Knowledge is stored as **individual files** in each skill's `learned/` folder:
+```
+~/.claude/skills/react-19/learned/hook-ordering-strict-mode.md
+~/.claude/skills/bootstrap-5/learned/modal-z-index-conflict.md
+```
+
+- One topic per file, max 30 lines, kebab-case filenames
+- Only extract non-obvious, reusable, verified knowledge
+- See `continuous-learning` skill for full workflow
+
+---
+
+## Development Workflow
+
+0. **Create tasks** - Always first
+1. **Classify risk** (1-4)
+2. **Plan** - `/brainstorming` or `/writing-plans` for Level 2+
+3. **Visual reference** - `/playground` or `visual-debugging` for UI work
+4. **Test first** - TDD for Level 2+
+5. **Implement** - Create debug/amendment tasks for issues
+6. **Verify** - Tests, lint, typecheck
+7. **Review** - `/requesting-code-review` for Level 2+
+8. **Learn** - Extract patterns to skill learned/ folders
+
+### Code Style
+- Max 500 lines/file, 20 lines/function, 3 params, 2 nesting levels
+- No dead code, no magic numbers, no silent failures
+
+### Deployment
+Docker + Portainer + Traefik. Each app is its own stack.
+
+---
+
+## Skill Quick Reference
+
+### Workflow
+```
+/brainstorming            /writing-plans           /test-driven-development
+/systematic-debugging     /verification-before-completion
+/requesting-code-review   /revise-claude-md
+```
+
+### Frontend
+```
+/frontend-design          /frontend-aesthetics     /bootstrap-5
+/playground               /web-artifacts-builder   visual-debugging
+```
+
+### Development
+```
+/feature-dev              /Django Framework
+/claude-bootstrap-base    /claude-bootstrap-react-web
+```
+
+---
+
+## CLAUDE.md Size Management
+
+This file MUST stay under 40,000 characters. If it grows too large:
+1. Move verbose content to `.claude/memory/` files
+2. Keep only rules, quick references, and concise protocols here
+3. Reference external files for full details
+4. Run `/revise-claude-md` to audit and trim
+
+---
+
+**Generated by:** scripts/install-skills.py
 """
 
 SESSION_CHANGELOG_TEMPLATE = """# Session Changelog - {project_name}
@@ -847,46 +671,30 @@ User says "checkpoint" at any time to trigger checkpoint actions.
 LEARNED_PATTERNS_TEMPLATE = """# Learned Patterns - {project_name}
 
 **Created:** {timestamp}
-**Last Updated:** {timestamp}
-**Total Patterns:** 0
-**Auto-Apply:** Enabled
 
----
+## How Learning Works
 
-## Code Patterns
-*Patterns will be extracted from each session and logged here.*
+Learnings are stored as **individual files** in each skill's `learned/` folder:
+```
+~/.claude/skills/<skill-name>/learned/<topic>.md
+```
 
----
+- One topic per file, max 30 lines, kebab-case filenames
+- Only extract non-obvious, reusable, verified knowledge
+- See the `continuous-learning` skill for the full workflow and file format
 
-## Architecture Patterns
-*Service layer, data flow, API design patterns.*
+## Project-Specific Learnings
 
----
-
-## Frontend Patterns
-*Component structure, styling, animation preferences.*
-
----
-
-## Domain Knowledge
-*Business logic, constraints, invariants.*
-
----
-
-## Mistakes & Fixes
-*Bugs encountered and how they were resolved.*
-
----
+For knowledge specific to THIS project (not a particular skill), add files to:
+```
+.claude/memory/learned/<topic>.md
+```
 
 ## User Preferences
-- **Communication style:** Concise, results-focused
+- **Communication:** Concise, no fluff, no summaries unless asked
 - **UI aesthetic:** Distinctive, avoids generic AI slop
 - **Deployment:** Docker + Portainer + Traefik
-- **Workflow:** Plan -> Build -> Verify -> Review
-
----
-
-*This file is auto-updated after each session via continuous learning.*
+- **Workflow:** Tasks -> Plan -> Build -> Verify -> Learn
 """
 
 
@@ -963,8 +771,8 @@ def generate_claude_md(project_root: Path):
 
 # Maps detected frameworks to recommended skills
 SKILL_MAP = {
-    "Django":     ["django-python"],
-    "Python":     ["django-python"],
+    "Django":     ["django-python", "continuous-learning"],
+    "Python":     ["django-python", "continuous-learning"],
     "React":      ["react-19", "claude-bootstrap-react-web", "javascript-es2025", "frontend-aesthetics", "modern-ui-ux", "visual-debugging"],
     "Next.js":    ["react-19", "claude-bootstrap-react-web", "javascript-es2025", "modern-ui-ux", "visual-debugging"],
     "TypeScript": ["react-19", "claude-bootstrap-react-web", "javascript-es2025"],
