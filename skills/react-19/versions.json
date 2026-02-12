@@ -1,0 +1,42 @@
+{
+  "last_updated": "2026-02-12",
+  "registry": "npm",
+  "packages": {
+    "react": {
+      "version": "19.0.0",
+      "npm": "react",
+      "docs_url": "https://react.dev/blog",
+      "role": "UI library"
+    },
+    "react-dom": {
+      "version": "19.0.0",
+      "npm": "react-dom",
+      "docs_url": "https://react.dev/blog",
+      "role": "DOM renderer"
+    },
+    "next": {
+      "version": "15.1.0",
+      "npm": "next",
+      "docs_url": "https://nextjs.org/blog",
+      "role": "React framework"
+    },
+    "@tanstack/react-query": {
+      "version": "5.64.0",
+      "npm": "@tanstack/react-query",
+      "docs_url": "https://tanstack.com/query/latest",
+      "role": "Data fetching"
+    },
+    "zustand": {
+      "version": "5.0.3",
+      "npm": "zustand",
+      "docs_url": "https://github.com/pmndrs/zustand",
+      "role": "State management"
+    },
+    "zod": {
+      "version": "3.24.2",
+      "npm": "zod",
+      "docs_url": "https://zod.dev/",
+      "role": "Schema validation"
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "last_updated": "2026-02-12",
+  "registry": "npm",
+  "packages": {
+    "bootstrap": {
+      "version": "5.3.8",
+      "npm": "bootstrap",
+      "docs_url": "https://getbootstrap.com/docs/5.3/",
+      "role": "CSS framework"
+    },
+    "bootstrap-icons": {
+      "version": "1.11.3",
+      "npm": "bootstrap-icons",
+      "docs_url": "https://icons.getbootstrap.com/",
+      "role": "Icon library"
+    }
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "last_updated": "2026-02-12",
+  "registry": "npm",
+  "packages": {
+    "gsap": {
+      "version": "3.12.7",
+      "npm": "gsap",
+      "docs_url": "https://gsap.com/docs/v3/",
+      "role": "Animation engine"
+    },
+    "animejs": {
+      "version": "4.0.0",
+      "npm": "animejs",
+      "docs_url": "https://animejs.com/",
+      "role": "Lightweight animation"
+    },
+    "three": {
+      "version": "0.172.0",
+      "npm": "three",
+      "docs_url": "https://threejs.org/",
+      "role": "3D graphics"
+    },
+    "lottie-web": {
+      "version": "5.13.0",
+      "npm": "lottie-web",
+      "docs_url": "https://airbnb.io/lottie/",
+      "role": "Vector animations"
+    },
+    "@tsparticles/slim": {
+      "version": "3.8.0",
+      "npm": "@tsparticles/slim",
+      "docs_url": "https://particles.js.org/",
+      "role": "Particle effects"
+    },
+    "typed.js": {
+      "version": "2.1.0",
+      "npm": "typed.js",
+      "docs_url": "https://mattboldt.com/demos/typed-js/",
+      "role": "Typewriter effect"
+    },
+    "swiper": {
+      "version": "12.0.0",
+      "npm": "swiper",
+      "docs_url": "https://swiperjs.com/",
+      "role": "Carousel/slider"
+    },
+    "lenis": {
+      "version": "1.2.3",
+      "npm": "lenis",
+      "docs_url": "https://lenis.darkroom.engineering/",
+      "role": "Smooth scrolling"
+    },
+    "@formkit/auto-animate": {
+      "version": "0.9.0",
+      "npm": "@formkit/auto-animate",
+      "docs_url": "https://auto-animate.formkit.com/",
+      "role": "List animations"
+    },
+    "aos": {
+      "version": "2.3.4",
+      "npm": "aos",
+      "docs_url": "https://michalsnik.github.io/aos/",
+      "role": "Scroll reveal"
+    }
+  }
+}

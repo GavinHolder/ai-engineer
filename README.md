@@ -10,7 +10,7 @@ A complete Claude Code development environment with enhanced skills, plugin conf
 - **JARVIS Voice System** (`skills/jarvis-voice/`) - Text-to-speech that reads Claude responses aloud using a British neural voice (JARVIS-style)
 - **Plugin Documentation** (`docs/plugins.md`) - Full list of installed plugins with install commands and usage guide
 - **Install Script** (`scripts/install-skills.py`) - Installs skills, plugins, fixes Windows hooks, generates project CLAUDE.md
-- **Version Scout** (`scripts/update-django-skill.py`) - Auto-updates Django/Python skill with latest package versions from PyPI
+- **Version Updater** (`scripts/update-skills.py`) - Auto-updates all skill versions from npm/PyPI
 - **Project Config** (`CLAUDE.md`) - Project-level instructions that Claude Code loads automatically
 - **Reference Docs** (`docs/`) - Bootstrap 5.3.8 reference, animation library guide, HOW-TO-USE guide
 
@@ -126,22 +126,24 @@ This generates:
 - `.claude/memory/TASK_PROTOCOL.md` - Hierarchical task management (5 levels, checkpoints)
 - `.claude/memory/LEARNED_PATTERNS.md` - Continuous learning log
 
-### 3. Keep Django/Python skill up to date
+### 3. Keep skills up to date
 
-The Django/Python skill tracks package versions. To check for updates:
+All skills with a `versions.json` are auto-checked against npm/PyPI:
 
 ```bash
-python scripts/update-django-skill.py           # Interactive: choose what to update
-python scripts/update-django-skill.py --check   # Check only, no changes
-python scripts/update-django-skill.py --auto    # Auto-update all to latest
+python scripts/update-skills.py                 # Interactive: choose what to update
+python scripts/update-skills.py --check         # Check only, no changes
+python scripts/update-skills.py --auto          # Auto-update all to latest
+python scripts/update-skills.py --skill react-19  # Update specific skill only
 ```
 
+Currently tracks versions for: **bootstrap-5**, **react-19**, **frontend-aesthetics**, **django-python**
+
 The script:
-- Checks PyPI for latest versions of all tracked packages
-- Compares against `skills/django-python/versions.json`
-- Prompts you to choose which to update
-- Scrapes official Django/Python docs for release notes and changes
-- Updates `SKILL.md` version table and appends release notes
+- Finds all skills with `versions.json`
+- Checks npm or PyPI for latest package versions
+- Updates `SKILL.md` version references and CDN URLs
+- Updates `versions.json` with new versions
 
 ## JARVIS Voice System
 
@@ -219,7 +221,8 @@ ai-engineer/
 │   └── settings.local.json              # Permissions config
 ├── scripts/
 │   ├── install-skills.py                # Main setup: skills, plugins, hooks, CLAUDE.md
-│   └── update-django-skill.py           # Version scout: checks PyPI, updates skill
+│   ├── update-skills.py                 # Universal version updater (npm + PyPI)
+│   └── update-django-skill.py           # Legacy Django-only updater
 ├── skills/                              # Enhanced/custom Claude Code skills
 │   ├── bootstrap-5/SKILL.md             # Bootstrap 5.3.8 reference
 │   ├── css3/SKILL.md                    # Modern CSS reference
