@@ -4,20 +4,70 @@ AI Engineer Toolkit - Skill Installer & Environment Setup
 
 1. Copies enhanced/custom skills from repo to ~/.claude/skills/
 2. Fixes Windows hook compatibility (python3 -> python)
-3. Generates project CLAUDE.md with full session management framework
+3. Generates CLAUDE.md & memory files (or appends to existing CLAUDE.md)
+4. Detects project frameworks and recommends relevant skills (read-only)
 
 Usage:
     python install-skills.py
+    python install-skills.py --detect <project-path>
+    python install-skills.py --init <project-path>
 """
 
 import json
 import os
 import platform
-import re
 import shutil
+import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+
+
+# ---------------------------------------------------------------------------
+# 0. PRE-FLIGHT: ENSURE CLAUDE CLI IS INSTALLED
+# ---------------------------------------------------------------------------
+
+def ensure_claude_cli() -> bool:
+    """Check if Claude CLI is installed, install via npm if missing."""
+    print("\n" + "=" * 60)
+    print("  PRE-FLIGHT: Checking Claude CLI")
+    print("=" * 60)
+
+    if shutil.which("claude"):
+        try:
+            result = subprocess.run(
+                ["claude", "--version"],
+                capture_output=True, text=True, timeout=10,
+            )
+            version = (result.stdout.strip() or result.stderr.strip() or "unknown")
+            print(f"  Claude CLI found: {version}")
+        except Exception:
+            print("  Claude CLI found in PATH.")
+        return True
+
+    print("  Claude CLI not found. Attempting install via npm...")
+
+    npm_cmd = shutil.which("npm")
+    if not npm_cmd:
+        print("  ERROR: npm not found. Install Node.js first, then run:")
+        print("    npm install -g @anthropic-ai/claude-code")
+        return False
+
+    try:
+        result = subprocess.run(
+            [npm_cmd, "install", "-g", "@anthropic-ai/claude-code"],
+            capture_output=True, text=True, timeout=120,
+        )
+        if result.returncode == 0:
+            print("  [INSTALLED] Claude CLI (@anthropic-ai/claude-code)")
+            return True
+        else:
+            print(f"  ERROR: npm install failed: {result.stderr.strip()[:200]}")
+            print("  Try manually: npm install -g @anthropic-ai/claude-code")
+            return False
+    except subprocess.TimeoutExpired:
+        print("  TIMEOUT: npm install took too long. Try manually.")
+        return False
 
 
 # ---------------------------------------------------------------------------
@@ -63,6 +113,81 @@ def install_skills(repo_root: Path) -> int:
 
     print(f"\n  {copied} file(s) installed to {target_skills}")
     return copied
+
+
+# ---------------------------------------------------------------------------
+# 1b. PLUGIN INSTALLATION
+# ---------------------------------------------------------------------------
+
+# All plugins to install automatically
+# Format: (plugin_name, source_repo)
+PLUGINS_TO_INSTALL = [
+    # From anthropics/claude-plugins-official
+    ("frontend-design", "anthropics/claude-plugins-official"),
+    ("feature-dev", "anthropics/claude-plugins-official"),
+    ("typescript-lsp", "anthropics/claude-plugins-official"),
+    ("security-guidance", "anthropics/claude-plugins-official"),
+    ("pyright-lsp", "anthropics/claude-plugins-official"),
+    ("claude-md-management", "anthropics/claude-plugins-official"),
+    ("hookify", "anthropics/claude-plugins-official"),
+    ("claude-code-setup", "anthropics/claude-plugins-official"),
+    ("playground", "anthropics/claude-plugins-official"),
+    ("playwright", "anthropics/claude-plugins-official"),
+    # From affaan-m/everything-claude-code
+    ("superpowers", "affaan-m/everything-claude-code"),
+]
+
+
+def install_plugins() -> int:
+    """Install Claude Code plugins via the claude CLI."""
+    print("\n" + "=" * 60)
+    print("  STEP 1b: Installing Claude Code Plugins")
+    print("=" * 60)
+
+    # Check if claude CLI is available
+    claude_cmd = shutil.which("claude")
+    if not claude_cmd:
+        print("  WARNING: 'claude' CLI not found in PATH.")
+        print("  Plugins must be installed manually. See plugins.md for commands.")
+        return 0
+
+    installed = 0
+    skipped = 0
+    failed = 0
+
+    for plugin_name, source_repo in PLUGINS_TO_INSTALL:
+        try:
+            result = subprocess.run(
+                [claude_cmd, "plugin", "install", plugin_name, "from", source_repo],
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
+            if result.returncode == 0:
+                if "already installed" in result.stdout.lower():
+                    print(f"  [SKIPPED] {plugin_name} (already installed)")
+                    skipped += 1
+                else:
+                    print(f"  [INSTALLED] {plugin_name} from {source_repo}")
+                    installed += 1
+            else:
+                # Check stderr for "already installed" too
+                combined = (result.stdout + result.stderr).lower()
+                if "already installed" in combined or "already" in combined:
+                    print(f"  [SKIPPED] {plugin_name} (already installed)")
+                    skipped += 1
+                else:
+                    print(f"  [FAILED] {plugin_name}: {result.stderr.strip()[:100]}")
+                    failed += 1
+        except subprocess.TimeoutExpired:
+            print(f"  [TIMEOUT] {plugin_name} (skipped)")
+            failed += 1
+        except Exception as e:
+            print(f"  [ERROR] {plugin_name}: {e}")
+            failed += 1
+
+    print(f"\n  {installed} installed, {skipped} already present, {failed} failed")
+    return installed
 
 
 # ---------------------------------------------------------------------------
@@ -113,8 +238,10 @@ def fix_windows_hooks() -> int:
 
 
 # ---------------------------------------------------------------------------
-# 3. CLAUDE.MD GENERATION
+# 3. CLAUDE.MD & MEMORY FILE GENERATION
 # ---------------------------------------------------------------------------
+
+AI_ENGINEER_MARKER = "<!-- AI Engineer Toolkit -->"
 
 CLAUDE_MD_TEMPLATE = r"""# Claude Code Session Guide - {project_name}
 
@@ -186,7 +313,20 @@ Before claiming ANY task is done:
 
 ---
 
-## Task Management Protocol
+## Task Management Protocol (Non-Negotiable)
+
+**NOTHING gets done without tasks.** Before writing any code, making any change, or starting any work, you MUST create a task list first. This is not optional. This is how we work.
+
+### Why This Matters
+
+Without tasks, Claude loses track of multi-step work, skips steps, forgets what's next after fixing a bug, and fails to recover after context resets. Tasks are the backbone of reliable work.
+
+### Rule: Always Create Tasks First
+
+1. **Receive a request** -> Create tasks BEFORE touching any code
+2. **Each task gets subtasks** if it involves more than one step
+3. **Mark tasks in_progress** before starting, **completed** when done
+4. **Never skip ahead** - finish or explicitly pause the current task before moving to the next
 
 ### Hierarchical Numbering (5 Levels Max)
 
@@ -198,17 +338,50 @@ Before claiming ANY task is done:
                      1.1.1.1.1 Granular task (Level 5 - max)
 ```
 
-### Deviation Handling
+### Debug Tasks (Fixing Bugs Mid-Step)
 
-When issues are discovered mid-task, use letter suffixes:
+When something breaks while working on a step, create a **debug task** as a child of the current task. Do NOT abandon the parent task or skip ahead. Fix the issue, then resume exactly where you left off.
+
+```
+1. Build user dashboard
+   1.1 Create layout component [IN PROGRESS]
+   1.1.debug.a: CSS grid not rendering correctly
+       1.1.debug.a.1 Investigate - check browser output
+       1.1.debug.a.2 Fix - missing display:grid on container
+       1.1.debug.a.3 Verify fix renders correctly
+   1.1 [RESUMED] - Continue layout component
+   1.2 Add data widgets (NEXT - untouched, waiting)
+```
+
+**Key rule:** Debug tasks fix the current step. They do NOT affect or reorder the remaining steps. Steps 1.2, 1.3, etc. stay exactly where they are.
+
+### Amendment Tasks (Revising a Completed Step)
+
+When a completed step needs changes (user feedback, missed requirement, etc.), create an **amendment task**. Do NOT re-do the entire step.
+
+```
+1. Build API endpoints
+   1.1 Create GET /users [COMPLETE]
+   1.2 Create POST /users [COMPLETE]
+   1.2.amend.a: Add email validation to POST /users
+       1.2.amend.a.1 Add validation logic
+       1.2.amend.a.2 Update tests
+       1.2.amend.a.3 Verify
+   1.3 Create DELETE /users (NEXT - still in queue)
+```
+
+### Deviation Handling (Unexpected Discoveries)
+
+When issues are discovered mid-task that aren't bugs in the current step but broader problems:
+
 ```
 1. Main Task
    1.1 Subtask [IN PROGRESS]
-   DEVIATION 1.1.a: Bug discovered in X
-       1.1.a.1 Investigate root cause
+   DEVIATION 1.1.a: Discovered auth middleware is missing
+       1.1.a.1 Investigate scope of the issue
        1.1.a.2 Fix implementation
        1.1.a.3 Verify fix with tests
-   1.2 Continue original plan
+   1.2 Continue original plan (unchanged)
 ```
 
 **Multiple deviations:** a, b, c, d, e
@@ -241,6 +414,8 @@ When issues are discovered mid-task, use letter suffixes:
 [>] IN PROGRESS
 [x] COMPLETE
 [!] DEVIATION - issue discovered
+[D] DEBUG - fixing a bug in current step
+[A] AMENDMENT - revising a completed step
 [-] BLOCKED - waiting on dependency
 [X] FAILED - requires replanning
 [#] CHECKPOINT
@@ -320,12 +495,13 @@ When a pattern conflicts with a new requirement, flag it and ask.
 
 ### Starting New Features
 
+0. **Create tasks first** - Break the work into tasks and subtasks BEFORE writing any code
 1. **Classify risk level** (Level 1-4)
 2. **Plan first** - Use `/writing-plans` or `/brainstorming` for Level 2+
-3. **Visualize UI** - Use `/playground` to mock up and preview UI before coding (Level 2+ with UI)
+3. **Visualize UI** - Use `/playground` to mock up, or `visual-debugging` to screenshot reference sites
 4. **For Level 3+**: Run `/adversarial-review` before coding
 5. **Write tests first** (TDD for Level 2+)
-6. **Implement** - Follow code style rules below
+6. **Implement** - Follow code style rules below. Create debug/amendment tasks for issues, never skip steps.
 7. **Verify** - Run full test suite, lint, typecheck
 8. **Review** - `/requesting-code-review` for Level 2+
 9. **Update memory** - Log to changelog, extract patterns
@@ -353,6 +529,20 @@ All deployments follow Docker + Portainer + Traefik:
 
 ---
 
+## Non-Negotiable Rules
+
+These rules apply to EVERY session, EVERY task, no exceptions:
+
+1. **Always create tasks first** - No code gets written without a task list. Period.
+2. **Tasks have subtasks** - Break work into trackable steps. Mark in_progress before starting, completed when done.
+3. **Debug tasks for bugs** - When something breaks mid-step, create a debug child task. Fix it in place. Do NOT skip ahead or lose track of remaining steps.
+4. **Amendment tasks for revisions** - When a completed step needs changes, create an amendment task. Do NOT redo the entire step.
+5. **Visual debugging for UI work** - When debugging UI issues or building creative frontends, use the `visual-debugging` skill (Playwright) to screenshot, inspect, and verify visually.
+6. **Never skip steps** - Remaining tasks in the queue are sacred. Debug/amend the current step without touching the plan.
+7. **Verify before claiming done** - Run tests, check output, confirm visually if applicable.
+
+---
+
 ## Plugin & Skill Quick Reference
 
 ### Workflow Skills (use in order)
@@ -373,6 +563,7 @@ All deployments follow Docker + Portainer + Traefik:
 /bootstrap-5                      -> Bootstrap 5.3.8 component reference
 /playground                       -> Interactive HTML explorers
 /web-artifacts-builder            -> Complex React+shadcn artifacts
+visual-debugging                  -> Playwright browser screenshots & design discovery
 ```
 
 ### Development Skills
@@ -490,11 +681,17 @@ None currently
 **READY FOR WORK:** Provide task list or describe what to build.
 """
 
-TASK_PROTOCOL_TEMPLATE = """# Hierarchical Task Management Protocol
+TASK_PROTOCOL_TEMPLATE = """# Hierarchical Task Management Protocol (Non-Negotiable)
 
-**Version:** 2.0 (Enhanced)
+**Version:** 3.0
 **Created:** {timestamp}
 **Max Depth:** 5 levels
+
+---
+
+## Golden Rule
+
+**NOTHING gets done without tasks.** Before writing any code, making any change, or starting any work, create a task list first. Every task must be tracked from start to completion. This is mandatory, not a suggestion.
 
 ---
 
@@ -513,18 +710,54 @@ TASK_PROTOCOL_TEMPLATE = """# Hierarchical Task Management Protocol
 
 ---
 
-## Deviation Handling
+## Debug Tasks (Fixing Bugs Mid-Step)
 
-When issues are discovered mid-task, use letter suffixes:
+When something breaks while working on a step, create a **debug task** as a child. Do NOT abandon the parent task. Do NOT skip to the next step. Fix the issue in place, then resume.
+
+```
+1. Build user dashboard
+   1.1 Create layout component [IN PROGRESS]
+   1.1.debug.a: CSS grid not rendering correctly
+       1.1.debug.a.1 Investigate - check browser output
+       1.1.debug.a.2 Fix - missing display:grid on container
+       1.1.debug.a.3 Verify fix
+   1.1 [RESUMED] Continue layout component
+   1.2 Add data widgets (NEXT - untouched, stays in queue)
+```
+
+**Critical:** The remaining steps (1.2, 1.3, etc.) do NOT move or change when a debug task is created. They stay exactly where they are.
+
+---
+
+## Amendment Tasks (Revising a Completed Step)
+
+When a completed step needs changes (user feedback, missed requirement, discovered issue), create an **amendment task**. Do NOT re-do the entire step or shuffle the remaining plan.
+
+```
+1. Build API endpoints
+   1.1 Create GET /users [COMPLETE]
+   1.2 Create POST /users [COMPLETE]
+   1.2.amend.a: Add email validation to POST /users
+       1.2.amend.a.1 Add validation logic
+       1.2.amend.a.2 Update tests
+       1.2.amend.a.3 Verify
+   1.3 Create DELETE /users (NEXT - still in queue)
+```
+
+---
+
+## Deviation Handling (Unexpected Discoveries)
+
+When broader issues are discovered mid-task (not bugs in the current step):
 
 ```
 1. Main Task
    1.1 Subtask [IN PROGRESS]
-   DEVIATION 1.1.a: Bug discovered in X
-       1.1.a.1 Investigate root cause
+   DEVIATION 1.1.a: Discovered auth middleware is missing
+       1.1.a.1 Investigate scope
        1.1.a.2 Fix implementation
        1.1.a.3 Verify fix with tests
-   1.2 Continue original plan
+   1.2 Continue original plan (unchanged)
 ```
 
 **Multiple deviations:** a, b, c, d, e (max 5 per level)
@@ -574,7 +807,9 @@ User says "checkpoint" at any time to trigger checkpoint actions.
 [ ] NOT STARTED
 [>] IN PROGRESS
 [x] COMPLETE
-[!] DEVIATION - issue discovered, deviation branch created
+[D] DEBUG - fixing a bug in current step
+[A] AMENDMENT - revising a completed step
+[!] DEVIATION - unexpected issue discovered
 [-] BLOCKED - waiting on dependency
 [X] FAILED - requires replanning
 [#] CHECKPOINT
@@ -584,14 +819,13 @@ User says "checkpoint" at any time to trigger checkpoint actions.
 
 ## When to Create Subtasks
 
-**Create subtasks when:**
-- Main task has >3 distinct steps
-- Task touches >3 files
-- Task is Level 3+ (critical logic, integrations)
+**Always create subtasks when:**
+- Main task has >1 distinct step
+- Task touches >1 file
+- Task is Level 2+ (any non-trivial work)
 
-**Keep flat when:**
-- Task is single-step
-- Task is trivial (doc update, formatting)
+**Keep flat only when:**
+- Task is genuinely single-step (rename a variable, fix a typo)
 
 ---
 
@@ -607,7 +841,7 @@ User says "checkpoint" at any time to trigger checkpoint actions.
 
 ---
 
-**This protocol is active for all sessions.**
+**This protocol is mandatory for all sessions. No exceptions.**
 """
 
 LEARNED_PATTERNS_TEMPLATE = """# Learned Patterns - {project_name}
@@ -657,30 +891,46 @@ LEARNED_PATTERNS_TEMPLATE = """# Learned Patterns - {project_name}
 
 
 def generate_claude_md(project_root: Path):
-    """Generate CLAUDE.md and memory files for a project."""
+    """Generate CLAUDE.md and memory files for a project.
+
+    If CLAUDE.md already exists, appends the AI Engineer content
+    (marked with a comment) instead of skipping.
+    """
     print("\n" + "=" * 60)
-    print("  STEP 3: Generating CLAUDE.md & Memory Files")
+    print("  Generating CLAUDE.md & Memory Files")
     print("=" * 60)
 
     claude_md_path = project_root / "CLAUDE.md"
     memory_dir = project_root / ".claude" / "memory"
 
-    if claude_md_path.exists():
-        print(f"  CLAUDE.md already exists at {claude_md_path}")
-        print("  Skipping generation (will not overwrite).")
-        print("  To regenerate, delete CLAUDE.md first.")
-        return
-
     project_name = project_root.name
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
-    # Create CLAUDE.md
-    content = CLAUDE_MD_TEMPLATE.format(
+    ai_engineer_content = CLAUDE_MD_TEMPLATE.format(
         project_name=project_name,
         timestamp=timestamp,
     )
-    claude_md_path.write_text(content, encoding="utf-8")
-    print(f"  [CREATED] CLAUDE.md")
+
+    if claude_md_path.exists():
+        existing = claude_md_path.read_text(encoding="utf-8")
+
+        # Check if AI Engineer content was already appended
+        if AI_ENGINEER_MARKER in existing:
+            print(f"  CLAUDE.md already contains AI Engineer section - skipping.")
+        else:
+            # Append AI Engineer content to existing CLAUDE.md
+            appendix = (
+                f"\n\n{AI_ENGINEER_MARKER}\n"
+                f"<!-- Appended by install-skills.py on {timestamp} -->\n\n"
+                f"{ai_engineer_content}"
+            )
+            claude_md_path.write_text(existing + appendix, encoding="utf-8")
+            print(f"  [APPENDED] AI Engineer section added to existing CLAUDE.md")
+    else:
+        # Create new CLAUDE.md with marker at the top
+        content = f"{AI_ENGINEER_MARKER}\n\n{ai_engineer_content}"
+        claude_md_path.write_text(content, encoding="utf-8")
+        print(f"  [CREATED] CLAUDE.md")
 
     # Create memory directory and files
     memory_dir.mkdir(parents=True, exist_ok=True)
@@ -708,6 +958,178 @@ def generate_claude_md(project_root: Path):
 
 
 # ---------------------------------------------------------------------------
+# 4. FRAMEWORK DETECTION (read-only)
+# ---------------------------------------------------------------------------
+
+# Maps detected frameworks to recommended skills
+SKILL_MAP = {
+    "Django":     ["django-python"],
+    "Python":     ["django-python"],
+    "React":      ["react-19", "claude-bootstrap-react-web", "javascript-es2025", "frontend-aesthetics", "modern-ui-ux", "visual-debugging"],
+    "Next.js":    ["react-19", "claude-bootstrap-react-web", "javascript-es2025", "modern-ui-ux", "visual-debugging"],
+    "TypeScript": ["react-19", "claude-bootstrap-react-web", "javascript-es2025"],
+    "Bootstrap":  ["bootstrap-5", "html5", "css3", "modern-ui-ux", "visual-debugging"],
+    "Tailwind":   ["css3", "frontend-aesthetics", "modern-ui-ux", "visual-debugging"],
+    "Frontend":   ["html5", "css3", "javascript-es2025", "frontend-aesthetics", "modern-ui-ux", "visual-debugging"],
+}
+
+
+def _read_json(path: Path) -> dict:
+    """Safely read a JSON file, returning empty dict on failure."""
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        return {}
+
+
+def _read_text(path: Path) -> str:
+    """Safely read a text file, returning empty string on failure."""
+    try:
+        return path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return ""
+
+
+def detect_frameworks(project_path: Path) -> dict[str, list[str]]:
+    """
+    Scan a project directory for framework markers.
+
+    Returns a dict of {framework_name: [recommended_skills]}.
+    This function is purely read-only — it never modifies anything.
+    """
+    detected: dict[str, list[str]] = {}
+
+    # -- Python detection --
+    has_requirements = (project_path / "requirements.txt").exists()
+    has_pyproject = (project_path / "pyproject.toml").exists()
+    has_setup_py = (project_path / "setup.py").exists()
+    has_pipfile = (project_path / "Pipfile").exists()
+    has_py_files = bool(list(project_path.glob("*.py")))
+
+    python_detected = any([has_requirements, has_pyproject, has_setup_py, has_pipfile, has_py_files])
+
+    # Check for Django markers
+    django_detected = False
+    has_manage_py = (project_path / "manage.py").exists()
+
+    if has_manage_py:
+        # manage.py is a strong Django signal, but check for settings too
+        settings_candidates = list(project_path.glob("*/settings.py")) + list(project_path.glob("*/settings/*.py"))
+        if settings_candidates:
+            django_detected = True
+
+    # Check requirements/pyproject for django dependency
+    if not django_detected:
+        deps_text = ""
+        if has_requirements:
+            deps_text += _read_text(project_path / "requirements.txt").lower()
+        if has_pyproject:
+            deps_text += _read_text(project_path / "pyproject.toml").lower()
+        if has_pipfile:
+            deps_text += _read_text(project_path / "Pipfile").lower()
+        if "django" in deps_text:
+            django_detected = True
+
+    if django_detected:
+        detected["Django"] = SKILL_MAP["Django"]
+    elif python_detected:
+        detected["Python"] = SKILL_MAP["Python"]
+
+    # -- JavaScript/Node detection via package.json --
+    pkg_json_path = project_path / "package.json"
+    pkg = _read_json(pkg_json_path) if pkg_json_path.exists() else {}
+    all_deps = {}
+    if pkg:
+        all_deps.update(pkg.get("dependencies", {}))
+        all_deps.update(pkg.get("devDependencies", {}))
+
+    # Next.js (check before React since Next includes React)
+    next_config_exists = bool(
+        list(project_path.glob("next.config.*"))
+    )
+    if "next" in all_deps or next_config_exists:
+        detected["Next.js"] = SKILL_MAP["Next.js"]
+
+    # React
+    if "react" in all_deps:
+        detected["React"] = SKILL_MAP["React"]
+
+    # TypeScript
+    if (project_path / "tsconfig.json").exists():
+        detected["TypeScript"] = SKILL_MAP["TypeScript"]
+
+    # -- CSS framework detection --
+    # Bootstrap (in package.json deps or in HTML files)
+    bootstrap_in_deps = "bootstrap" in all_deps
+    bootstrap_in_html = False
+    if not bootstrap_in_deps:
+        for html_file in project_path.rglob("*.html"):
+            try:
+                content = html_file.read_text(encoding="utf-8", errors="ignore")
+                if "bootstrap" in content.lower():
+                    bootstrap_in_html = True
+                    break
+            except OSError:
+                continue
+
+    if bootstrap_in_deps or bootstrap_in_html:
+        detected["Bootstrap"] = SKILL_MAP["Bootstrap"]
+
+    # Tailwind
+    if list(project_path.glob("tailwind.config.*")):
+        detected["Tailwind"] = SKILL_MAP["Tailwind"]
+
+    # Generic frontend (HTML/CSS files present but no specific framework yet)
+    has_html = bool(list(project_path.glob("**/*.html"))[:1])
+    has_css = bool(list(project_path.glob("**/*.css"))[:1])
+    if (has_html or has_css) and "Frontend" not in detected:
+        # Only add generic frontend if no more specific frontend framework detected
+        frontend_frameworks = {"React", "Next.js", "Bootstrap", "Tailwind"}
+        if not detected.keys() & frontend_frameworks:
+            detected["Frontend"] = SKILL_MAP["Frontend"]
+
+    return detected
+
+
+def print_detection_results(detected: dict[str, list[str]], project_path: Path):
+    """Print a clear summary of detected frameworks and relevant skills."""
+    print("\n" + "=" * 60)
+    print("  STEP 3: Framework Detection")
+    print("=" * 60)
+    print(f"  Project: {project_path}")
+
+    if not detected:
+        print("\n  No specific frameworks detected.")
+        print("  All general-purpose skills are available (claude-bootstrap-base, etc.)")
+        return
+
+    print(f"\n  Detected stack:")
+    for framework in detected:
+        print(f"    - {framework}")
+
+    # Collect unique recommended skills
+    all_skills: list[str] = []
+    for skills in detected.values():
+        for s in skills:
+            if s not in all_skills:
+                all_skills.append(s)
+
+    # Check which recommended skills are actually installed
+    installed_skills_dir = Path.home() / ".claude" / "skills"
+    print(f"\n  Relevant installed skills:")
+    for skill in all_skills:
+        installed = (installed_skills_dir / skill).exists()
+        status = "INSTALLED" if installed else "NOT FOUND"
+        print(f"    [{status}] {skill}")
+
+    # Always mention the base skill
+    if "claude-bootstrap-base" not in all_skills:
+        base_installed = (installed_skills_dir / "claude-bootstrap-base").exists()
+        if base_installed:
+            print(f"    [INSTALLED] claude-bootstrap-base (always available)")
+
+
+# ---------------------------------------------------------------------------
 # MAIN
 # ---------------------------------------------------------------------------
 
@@ -720,17 +1142,44 @@ def main():
 
     repo_root = Path(__file__).parent
 
+    # Step 0: Ensure Claude CLI is available
+    has_claude = ensure_claude_cli()
+
     # Step 1: Install skills
     install_skills(repo_root)
+
+    # Step 1b: Install plugins (requires Claude CLI)
+    if has_claude:
+        install_plugins()
+    else:
+        print("\n  SKIPPED plugin installation (Claude CLI not available).")
+
+    # Step 1c: Mute JARVIS voice by default (users can enable via jarvis-toggle.py)
+    mute_file = Path.home() / ".claude" / "jarvis-muted"
+    if not mute_file.exists():
+        mute_file.parent.mkdir(parents=True, exist_ok=True)
+        mute_file.touch()
+        print(f"\n  [MUTED] JARVIS voice disabled by default.")
+        print(f"  To enable: python skills/jarvis-voice/jarvis-toggle.py")
+    else:
+        print(f"\n  JARVIS voice already muted (default). Toggle with jarvis-toggle.py")
 
     # Step 2: Fix Windows hooks
     fix_windows_hooks()
 
-    # Step 3: Generate CLAUDE.md (in current working directory)
-    cwd = Path.cwd()
-    if cwd == repo_root:
+    # Determine target project directory
+    # --init <path> or --detect <path> set the target; otherwise use cwd
+    target = Path.cwd()
+    if len(sys.argv) > 2 and sys.argv[1] in ("--init", "--detect"):
+        target = Path(sys.argv[2]).resolve()
+        if not target.exists() or not target.is_dir():
+            print(f"\n  ERROR: Directory not found: {target}")
+            sys.exit(1)
+
+    # Step 3: Generate CLAUDE.md & memory files
+    if target == repo_root:
         print("\n" + "=" * 60)
-        print("  STEP 3: CLAUDE.md Generation")
+        print("  CLAUDE.md Generation")
         print("=" * 60)
         print("  You're running from the ai-engineer repo itself.")
         print("  To generate CLAUDE.md for a project, run from that project:")
@@ -740,15 +1189,11 @@ def main():
         print("  Or pass the project path as argument:")
         print(f"    python install-skills.py --init <project-path>")
     else:
-        generate_claude_md(cwd)
+        generate_claude_md(target)
 
-    # Handle --init argument
-    if len(sys.argv) > 2 and sys.argv[1] == "--init":
-        target = Path(sys.argv[2]).resolve()
-        if target.exists() and target.is_dir():
-            generate_claude_md(target)
-        else:
-            print(f"\n  ERROR: Directory not found: {target}")
+    # Step 4: Detect frameworks (read-only)
+    detected = detect_frameworks(target)
+    print_detection_results(detected, target)
 
     print("\n" + "=" * 60)
     print("  Setup Complete!")

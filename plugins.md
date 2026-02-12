@@ -1,5 +1,7 @@
 # Installed Claude Code Plugins & Skills
 
+> **All plugins below are installed automatically by `install-skills.py`.** No manual plugin installation needed.
+
 ---
 
 ## How to Use Skills & Plugins
@@ -153,6 +155,30 @@ Creates interactive HTML playgrounds — self-contained single-file explorers th
 /plugin install playground from anthropics/claude-plugins-official
 ```
 
+### playwright
+Browser automation via Playwright MCP server (`npx @playwright/mcp@latest`). Gives Claude the ability to navigate websites, take screenshots, interact with elements, and inspect the DOM. Used for **visual debugging and design discovery**.
+
+```
+/plugin install playwright from anthropics/claude-plugins-official
+```
+
+**Playwright MCP tools:**
+
+| Tool | What It Does |
+|------|-------------|
+| `browser_navigate` | Go to a URL |
+| `browser_screenshot` | Capture current viewport |
+| `browser_click` | Click an element |
+| `browser_fill` | Fill form fields |
+| `browser_snapshot` | Get accessibility tree (structured DOM) |
+| `browser_resize` | Change viewport for responsive testing |
+
+**Visual debugging workflows** (see `visual-debugging` skill for full details):
+- **Visual Discovery** — Navigate to reference sites, screenshot, extract design patterns (colors, fonts, layout)
+- **Visual Debugging** — Open dev server, screenshot current state, compare against expected design
+- **Responsive Testing** — Check site at mobile (375px), tablet (768px), and desktop (1440px) viewports
+- **Design Audit** — Screenshot competitor/reference sites to inform design decisions
+
 ---
 
 ## Plugins from `anthropics/claude-plugins-official` (also available but NOT installed)
@@ -192,7 +218,6 @@ These are available in the same marketplace but you haven't installed them yet:
 | greptile | `/plugin install greptile from anthropics/claude-plugins-official` |
 | laravel-boost | `/plugin install laravel-boost from anthropics/claude-plugins-official` |
 | linear | `/plugin install linear from anthropics/claude-plugins-official` |
-| playwright | `/plugin install playwright from anthropics/claude-plugins-official` |
 | serena | `/plugin install serena from anthropics/claude-plugins-official` |
 | slack | `/plugin install slack from anthropics/claude-plugins-official` |
 | stripe | `/plugin install stripe from anthropics/claude-plugins-official` |
