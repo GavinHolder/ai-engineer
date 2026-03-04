@@ -251,6 +251,46 @@ A collection of workflow skills for structured development:
 
 ---
 
+## Plugin from `mbailey/voicemode`
+
+### voicemode
+Voice interaction for Claude Code. Enables voice conversations, speech-to-text, and text-to-speech directly in the CLI. Connect via phone or web app using VoiceMode Connect, or use local voice services.
+
+- **/voicemode** — Voice interaction entry point.
+- **/converse** — Start an ongoing voice conversation.
+- **/install** (voicemode) — Install VoiceMode, FFmpeg, and local voice services.
+- **/status** (voicemode) — Check the status of VoiceMode services.
+- **/voicemode-connect** — Remote voice via phone or web app.
+- **/voicemode-dj** — Background music control for voice sessions.
+
+```
+/plugin install voicemode from mbailey/voicemode
+```
+
+---
+
+## MCP Server: Efecto
+
+### efecto
+Visual design tool for Claude Code. Create artboards, build layouts with JSX and Tailwind CSS, modify design elements in real-time, and export designs in multiple formats (PNG, JPEG, WebP, SVG). No API key required — sessions are free.
+
+**Install:** `npx @efectoapp/mcp install`
+
+**Docs:** [efecto.app/docs](https://efecto.app/docs)
+
+**Usage:** Ask Claude to "Design a landing page in Efecto" or any design-related prompt.
+
+**Capabilities:**
+- Create artboards for desktop, tablet, and mobile
+- Build layouts using JSX sections with Tailwind CSS styling
+- Modify text, images, and buttons in real-time
+- Align, distribute, group, and reorder components
+- Export finished designs as PNG, JPEG, WebP, or SVG
+
+**Also available:** `npx @efectoapp/mcp-fx install` for visual effects (ASCII art, dithering, glitch, halftone).
+
+---
+
 ## Custom Skills (manually created)
 
 ### frontend-aesthetics

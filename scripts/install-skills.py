@@ -135,6 +135,14 @@ PLUGINS_TO_INSTALL = [
     ("playwright", "anthropics/claude-plugins-official"),
     # From affaan-m/everything-claude-code
     ("superpowers", "affaan-m/everything-claude-code"),
+    # From mbailey/voicemode
+    ("voicemode", "mbailey/voicemode"),
+]
+
+# MCP servers to install via npx CLI installers
+# Format: (name, install_command_args)
+MCP_SERVERS_TO_INSTALL = [
+    ("efecto", ["npx", "@efectoapp/mcp", "install"]),
 ]
 
 
@@ -187,6 +195,49 @@ def install_plugins() -> int:
             failed += 1
 
     print(f"\n  {installed} installed, {skipped} already present, {failed} failed")
+    return installed
+
+
+# ---------------------------------------------------------------------------
+# 1c. MCP SERVER INSTALLATION
+# ---------------------------------------------------------------------------
+
+def install_mcp_servers() -> int:
+    """Install MCP servers via their CLI installers."""
+    print("\n" + "=" * 60)
+    print("  STEP 1c: Installing MCP Servers")
+    print("=" * 60)
+
+    installed = 0
+    failed = 0
+
+    for name, cmd_args in MCP_SERVERS_TO_INSTALL:
+        try:
+            print(f"  Installing {name} MCP server...")
+            result = subprocess.run(
+                cmd_args,
+                capture_output=True,
+                text=True,
+                timeout=120,
+            )
+            if result.returncode == 0:
+                print(f"  [INSTALLED] {name} MCP server")
+                installed += 1
+            else:
+                combined = (result.stdout + result.stderr).lower()
+                if "already" in combined:
+                    print(f"  [SKIPPED] {name} (already configured)")
+                else:
+                    print(f"  [FAILED] {name}: {result.stderr.strip()[:100]}")
+                    failed += 1
+        except subprocess.TimeoutExpired:
+            print(f"  [TIMEOUT] {name} (skipped)")
+            failed += 1
+        except Exception as e:
+            print(f"  [ERROR] {name}: {e}")
+            failed += 1
+
+    print(f"\n  {installed} MCP server(s) installed, {failed} failed")
     return installed
 
 
@@ -962,15 +1013,8 @@ def main():
     else:
         print("\n  SKIPPED plugin installation (Claude CLI not available).")
 
-    # Step 1c: Mute JARVIS voice by default (users can enable via jarvis-toggle.py)
-    mute_file = Path.home() / ".claude" / "jarvis-muted"
-    if not mute_file.exists():
-        mute_file.parent.mkdir(parents=True, exist_ok=True)
-        mute_file.touch()
-        print(f"\n  [MUTED] JARVIS voice disabled by default.")
-        print(f"  To enable: python skills/jarvis-voice/jarvis-toggle.py")
-    else:
-        print(f"\n  JARVIS voice already muted (default). Toggle with jarvis-toggle.py")
+    # Step 1c: Install MCP servers
+    install_mcp_servers()
 
     # Step 2: Fix Windows hooks
     fix_windows_hooks()
